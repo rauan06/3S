@@ -1,6 +1,7 @@
 package http_utils
 
 import (
+	"fmt"
 	"net/http"
 	"regexp"
 
@@ -11,13 +12,18 @@ import (
 var validBucketNameRegex = regexp.MustCompile("^([a-z0-9.-]{3,63})$")
 
 var (
-	buckets     = make(map[*User][]*Bucket)
+	buckets     = make(map[int][]*Bucket)
 	bucketNames []string
+	sessionUser *User
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	method := r.Method
 	bucketName := r.URL.Path[1:]
+
+	if sessionUser == nil {
+		sessionUser = NewUser()
+	}
 
 	switch method {
 	case "PUT":
@@ -35,10 +41,20 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 		// TODO: Add data reading
 		newBucket := NewBucket(bucketName, nil)
-		user := NewUser()
+		// user := NewUser()
 
-		buckets[user] = append(buckets[user], newBucket)
+		buckets[1] = append(buckets[1], newBucket)
 
+		OkRequest(w, r)
+		return
+	case "GET":
+		response := []string{}
+
+		for _, bucket := range buckets[1] {
+			response = append(response, bucket.Name)
+		}
+
+		fmt.Fprintln(w, response)
 		OkRequest(w, r)
 		return
 	}
