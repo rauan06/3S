@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -28,25 +27,18 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Read the request body
-		_, err := io.ReadAll(r.Body)
-		if err != nil {
-			http_utils.BadRequest(w, r)
-			return
-		}
-		defer r.Body.Close() // Close the body after reading
-
 		parentPath := "buckets"
 		childPath := r.URL.Path[1:]
 		fullPath := fmt.Sprintf("%s/%s", parentPath, childPath)
 
-		err = utils.EnsureDirExists(fullPath)
+		err := utils.EnsureDirExists(fullPath)
 		if err != nil {
 			http_utils.ConflictRequest(w, r)
 			return
 		}
 		w.Header().Add("Location", fullPath)
 		http_utils.OkRequest(w, r)
+
 		return
 	case "GET":
 		http_utils.OkRequest(w, r)
