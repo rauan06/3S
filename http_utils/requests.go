@@ -20,25 +20,28 @@ const (
 
 func BadRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusBadRequest)
-	writeHeaderResponse(w, "400 Bad Request", r)
+	writeHeaderResponse("400 Bad Request", r)
 }
 
 func ConflictRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusConflict)
-	writeHeaderResponse(w, "409 Conflict", r)
+	writeHeaderResponse("409 Conflict", r)
 }
 
 func OkRequest(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Location", r.URL.Path[1:])
+	w.Header().Add("Connection", "close")
+	w.Header().Add("Server", "triple-s")
 	w.WriteHeader(http.StatusOK)
-	writeHeaderResponse(w, "200 OK", r)
+	writeHeaderResponse("200 OK", r)
 }
 
 func MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	writeHeaderResponse(w, "405 Method Not Allowed", r)
+	writeHeaderResponse("405 Method Not Allowed", r)
 }
 
-func writeHeaderResponse(w http.ResponseWriter, code string, r *http.Request) {
+func writeHeaderResponse(code string, r *http.Request) {
 	msg := fmt.Sprint(r.Method, " ", r.URL, " ", r.Proto, " ", code)
 	status := code[0]
 

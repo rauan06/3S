@@ -1,18 +1,12 @@
 package utils
 
 import (
-	"fmt"
-	"os"
+	"crypto/md5"
+	"encoding/hex"
 )
 
-func EnsureDirExists(dirPath string) error {
-	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
-		err := os.MkdirAll(dirPath, os.ModePerm)
-		if err != nil {
-			return fmt.Errorf("failed to create a bucket: %w", err)
-		}
-	} else {
-		return fmt.Errorf("bucket already exists: %s\n", dirPath)
-	}
-	return nil
+func MdHashing(input string) string {
+	byteInput := []byte(input)
+	md5Hash := md5.Sum(byteInput)
+	return hex.EncodeToString(md5Hash[:])
 }
