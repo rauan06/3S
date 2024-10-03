@@ -29,7 +29,7 @@ func ConflictRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func OkRequest(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Location", r.URL.Path[1:])
+	w.Header().Add("Location", r.URL.Path)
 	w.Header().Add("Connection", "close")
 	w.Header().Add("Server", "triple-s")
 	w.WriteHeader(http.StatusOK)
