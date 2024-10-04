@@ -28,12 +28,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	switch method {
 	case "PUT":
-		// Checking for validity
 		if !checkRegex(bucketName) {
 			BadRequest(w, r)
 			return
 		}
-		// Checking for uniqueness
 		if !bucketIsUnique(bucketName) {
 			ConflictRequest(w, r)
 			return
