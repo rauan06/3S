@@ -7,11 +7,12 @@ import (
 )
 
 type Bucket struct {
-	BucketId     int
-	Name         string
+	BucketId     int    `xml:"BucketID"`
+	Name         string `xml:"BucketName"`
 	CreateDate   time.Time
 	LastModified time.Time
 	LifeCycle    time.Time
+	Status       string
 	Data         [][]byte
 }
 
@@ -46,6 +47,7 @@ func NewBucket(name string, data [][]byte) *Bucket {
 		CreateDate:   time.Now(),
 		LastModified: time.Now(),
 		LifeCycle:    utils.Expiration(),
+		Status:       "active",
 		Data:         data,
 	}
 }

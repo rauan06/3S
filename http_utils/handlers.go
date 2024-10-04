@@ -12,6 +12,7 @@ import (
 var (
 	validBucketNameRegex = regexp.MustCompile("^([a-z0-9.-]{3,63})$")
 	ipAddressRegex       = regexp.MustCompile(`^(\d{1,3}\.){3}\d{1,3}$`)
+	doubleDashPeriod     = regexp.MustCompile(`[-]{2}|\.\.`)
 	buckets              = make(map[int][]*Bucket)
 	bucketNames          []string
 	sessionUser          *User
@@ -105,6 +106,10 @@ func checkRegex(test string) bool {
 	}
 
 	if m := validBucketNameRegex.FindStringSubmatch(test); m == nil {
+		return false
+	}
+
+	if doubleDashPeriod.MatchString(test) {
 		return false
 	}
 
