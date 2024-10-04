@@ -9,13 +9,12 @@ import (
 	. "triples/buckets"
 )
 
-// TODO: Update regex
-var validBucketNameRegex = regexp.MustCompile("^([a-z0-9.-]{3,63})$")
-
 var (
-	buckets     = make(map[int][]*Bucket)
-	bucketNames []string
-	sessionUser *User
+	validBucketNameRegex = regexp.MustCompile("^([a-z0-9.-]{3,63})$")
+	ipAddressRegex       = regexp.MustCompile(`^(\d{1,3}\.){3}\d{1,3}$`)
+	buckets              = make(map[int][]*Bucket)
+	bucketNames          []string
+	sessionUser          *User
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +69,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 					ConflictRequest(w, r)
 					return
 				} else {
-					bucket.Data = []byte{}
+					bucket.Data = [][]byte{}
 					NoContentRequest(w, r)
 					return
 				}
@@ -99,4 +98,13 @@ func nestForXML() *ListAllMyBucketsResult {
 	ListAllMyBucketsResult.User = *sessionUser
 
 	return ListAllMyBucketsResult
+}
+
+func checkRegex(test string) {
+	if ipAddressRegex.MatchString(test) {
+	}
+
+	if m := validBucketNameRegex.FindStringSubmatch(test); m == nil {
+		return
+	}
 }

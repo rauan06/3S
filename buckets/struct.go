@@ -12,7 +12,7 @@ type Bucket struct {
 	CreateDate   time.Time
 	LastModified time.Time
 	LifeCycle    time.Time
-	Data         []byte
+	Data         [][]byte
 }
 
 type User struct {
@@ -37,7 +37,7 @@ var (
 	UserID   = 0
 )
 
-func NewBucket(name string, data []byte) *Bucket {
+func NewBucket(name string, data [][]byte) *Bucket {
 	BucketId++
 
 	return &Bucket{
