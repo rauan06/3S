@@ -57,7 +57,8 @@ func OkRequestWithHeaders(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Connection", "close")
 		w.Header().Add("Server", "triple-s")
 	}
-	OkRequest(w, r)
+	w.WriteHeader(http.StatusOK)
+	writeHeaderResponse("200 OK", r)
 }
 
 func MethodNotAllowed(w http.ResponseWriter, r *http.Request) {

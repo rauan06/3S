@@ -28,11 +28,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	switch method {
 	case "PUT":
 		// Checking for validity
-		if m := validBucketNameRegex.FindStringSubmatch(bucketName); m == nil {
+		if !checkRegex(bucketName) {
 			BadRequest(w, r)
 			return
 		}
-
 		// Checking for uniqueness
 		if !bucketIsUnique(bucketName) {
 			ConflictRequest(w, r)
@@ -100,11 +99,14 @@ func nestForXML() *ListAllMyBucketsResult {
 	return ListAllMyBucketsResult
 }
 
-func checkRegex(test string) {
+func checkRegex(test string) bool {
 	if ipAddressRegex.MatchString(test) {
+		return false
 	}
 
 	if m := validBucketNameRegex.FindStringSubmatch(test); m == nil {
-		return
+		return false
 	}
+
+	return true
 }
