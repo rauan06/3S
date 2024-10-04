@@ -35,7 +35,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Checking for uniqueness
-		if m := bucketIsUnique(bucketName); m == false {
+		if !bucketIsUnique(bucketName) {
 			ConflictRequest(w, r)
 			return
 		}
@@ -47,6 +47,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 		OkRequestWithHeaders(w, r)
 		return
+
 	case "GET":
 		if len(bucketNames) == 0 {
 			OkRequest(w, r)
@@ -60,6 +61,12 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, xml.Header)
 		fmt.Fprintln(w, string(out))
 		return
+
+	case "DELETE":
+		if bucketIsUnique(bucketName) {
+			http.NotFoundHandler()
+		}
+
 	}
 }
 
