@@ -29,11 +29,18 @@ func ConflictRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func OkRequest(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Location", r.URL.Path)
-	w.Header().Add("Connection", "close")
-	w.Header().Add("Server", "triple-s")
 	w.WriteHeader(http.StatusOK)
 	writeHeaderResponse("200 OK", r)
+}
+
+func OkRequestWithHeaders(w http.ResponseWriter, r *http.Request) {
+	if len(buckets[sessionUser.UserID]) != 0 {
+		fmt.Println(123)
+		w.Header().Add("Location", r.URL.Path)
+		w.Header().Add("Connection", "close")
+		w.Header().Add("Server", "triple-s")
+	}
+	OkRequest(w, r)
 }
 
 func MethodNotAllowed(w http.ResponseWriter, r *http.Request) {

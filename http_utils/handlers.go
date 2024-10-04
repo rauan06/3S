@@ -1,6 +1,7 @@
 package http_utils
 
 import (
+	"encoding/xml"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -41,21 +42,25 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 		// TODO: Add data reading
 		newBucket := NewBucket(bucketName, nil)
-		// user := NewUser()
 
-		buckets[1] = append(buckets[1], newBucket)
+		buckets[sessionUser.UserID] = append(buckets[sessionUser.UserID], newBucket)
 
-		OkRequest(w, r)
+		OkRequestWithHeaders(w, r)
 		return
 	case "GET":
-		response := []string{}
-
-		for _, bucket := range buckets[1] {
-			response = append(response, bucket.Name)
+		if len(bucketNames) == 0 {
+			OkRequest(w, r)
+			return
 		}
+		ListAllMyBucketsResult := &ListAllMyBucketsResult{}
+		Buckets := &Buckets{Bucket: buckets[sessionUser.UserID]}
+		ListAllMyBucketsResult.Buckets = *Buckets
+		ListAllMyBucketsResult.User = *sessionUser
 
-		fmt.Fprintln(w, response)
-		OkRequest(w, r)
+		OkRequestWithHeaders(w, r)
+		out, _ := xml.MarshalIndent(ListAllMyBucketsResult, "  ", "  ")
+		fmt.Fprint(w, xml.Header)
+		fmt.Fprintln(w, string(out))
 		return
 	}
 }

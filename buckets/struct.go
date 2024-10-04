@@ -7,17 +7,27 @@ import (
 )
 
 type Bucket struct {
-	BucketId   int
-	Name       string
-	CreateDate time.Time
-	Logs       []time.Time
-	Data       []byte
+	BucketId     int
+	Name         string
+	CreateDate   time.Time
+	LastModified time.Time
+	LifeCycle    time.Time
+	Data         []byte
 }
 
 type User struct {
 	UserID   int
 	Username string
 	Password string
+}
+
+type ListAllMyBucketsResult struct {
+	Buckets Buckets
+	User    User
+}
+
+type Buckets struct {
+	Bucket []*Bucket
 }
 
 var (
@@ -29,11 +39,12 @@ func NewBucket(name string, data []byte) *Bucket {
 	BucketId++
 
 	return &Bucket{
-		BucketId:   BucketId,
-		Name:       name,
-		CreateDate: time.Now(),
-		Logs:       []time.Time{time.Now()},
-		Data:       data,
+		BucketId:     BucketId,
+		Name:         name,
+		CreateDate:   time.Now(),
+		LastModified: time.Now(),
+		LifeCycle:    utils.Expiration(),
+		Data:         data,
 	}
 }
 
