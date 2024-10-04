@@ -1,9 +1,12 @@
 package http_utils
 
 import (
+	"encoding/xml"
 	"fmt"
 	"log"
 	"net/http"
+
+	. "triples/buckets"
 )
 
 const (
@@ -20,16 +23,31 @@ const (
 
 func BadRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusBadRequest)
+	writeXML(w, "400 Bad Request")
 	writeHeaderResponse("400 Bad Request", r)
 }
 
 func ConflictRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusConflict)
+	writeXML(w, "409 Conflict")
 	writeHeaderResponse("409 Conflict", r)
+}
+
+func NoContentRequest(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNoContent)
+	writeXML(w, "204 No Content")
+	writeHeaderResponse("204 No Content", r)
+}
+
+func NotFoundRequest(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+	writeXML(w, "404 Not Found")
+	writeHeaderResponse("404 Not Found", r)
 }
 
 func OkRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
+	writeXML(w, "200 OK")
 	writeHeaderResponse("200 OK", r)
 }
 
@@ -44,6 +62,7 @@ func OkRequestWithHeaders(w http.ResponseWriter, r *http.Request) {
 
 func MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusMethodNotAllowed)
+	writeXML(w, "405 Method Not Allowed")
 	writeHeaderResponse("405 Method Not Allowed", r)
 }
 
@@ -65,4 +84,11 @@ func writeHeaderResponse(code string, r *http.Request) {
 	default:
 		log.Print(Magenta + msg + Reset)
 	}
+}
+
+func writeXML(w http.ResponseWriter, msg string) {
+	var nf Response = Response(msg)
+	out, _ := xml.MarshalIndent(nf, "  ", "  ")
+	fmt.Fprint(w, xml.Header)
+	fmt.Fprintln(w, string(out))
 }

@@ -42,6 +42,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 		// TODO: Add data reading
 		newBucket := NewBucket(bucketName, nil)
+		bucketNames = append(bucketNames, bucketName)
 
 		buckets[sessionUser.UserID] = append(buckets[sessionUser.UserID], newBucket)
 
@@ -63,10 +64,21 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 
 	case "DELETE":
-		if bucketIsUnique(bucketName) {
-			http.NotFoundHandler()
+		for _, bucket := range buckets[sessionUser.UserID] {
+			if bucketName == bucket.Name {
+				if len(bucket.Data) == 0 {
+					ConflictRequest(w, r)
+					return
+				} else {
+					bucket.Data = []byte{}
+					NoContentRequest(w, r)
+					return
+				}
+			}
 		}
 
+		NotFoundRequest(w, r)
+		return
 	}
 }
 
@@ -77,7 +89,6 @@ func bucketIsUnique(bucketName string) bool {
 		}
 	}
 
-	bucketNames = append(bucketNames, bucketName)
 	return true
 }
 

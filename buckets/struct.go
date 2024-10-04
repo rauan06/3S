@@ -30,6 +30,8 @@ type Buckets struct {
 	Bucket []*Bucket
 }
 
+type Response string
+
 var (
 	BucketId = 0
 	UserID   = 0
