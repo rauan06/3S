@@ -52,10 +52,8 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			OkRequest(w, r)
 			return
 		}
-		ListAllMyBucketsResult := &ListAllMyBucketsResult{}
-		Buckets := &Buckets{Bucket: buckets[sessionUser.UserID]}
-		ListAllMyBucketsResult.Buckets = *Buckets
-		ListAllMyBucketsResult.User = *sessionUser
+
+		ListAllMyBucketsResult := nestForXML()
 
 		OkRequestWithHeaders(w, r)
 		out, _ := xml.MarshalIndent(ListAllMyBucketsResult, "  ", "  ")
@@ -74,4 +72,13 @@ func bucketIsUnique(bucketName string) bool {
 
 	bucketNames = append(bucketNames, bucketName)
 	return true
+}
+
+func nestForXML() *ListAllMyBucketsResult {
+	ListAllMyBucketsResult := &ListAllMyBucketsResult{}
+	Buckets := &Buckets{Bucket: buckets[sessionUser.UserID]}
+	ListAllMyBucketsResult.Buckets = *Buckets
+	ListAllMyBucketsResult.User = *sessionUser
+
+	return ListAllMyBucketsResult
 }
