@@ -8,7 +8,11 @@ import (
 	. "triples/buckets"
 )
 
-func PUT(w http.ResponseWriter, r *http.Request, bucketName string) {
+func PUT(w http.ResponseWriter, r *http.Request,
+	URL string,
+) {
+	bucketName := URL[1:]
+
 	if !CheckRegex(bucketName) {
 		BadRequest(w, r)
 		return
@@ -22,12 +26,17 @@ func PUT(w http.ResponseWriter, r *http.Request, bucketName string) {
 	newBucket := NewBucket(bucketName, nil)
 	BucketNames = append(BucketNames, bucketName)
 
-	AllBuckets[SessionUser.UserID] = append(AllBuckets[SessionUser.UserID], newBucket)
+	AllBuckets[SessionUser.UserID] = append(
+		AllBuckets[SessionUser.UserID],
+		newBucket,
+	)
 
 	OkRequestWithHeaders(w, r)
 }
 
-func GET(w http.ResponseWriter, r *http.Request, bucketName string) {
+func GET(w http.ResponseWriter, r *http.Request,
+	bucketName string,
+) {
 	if len(bucketName) != 0 {
 		if !CheckRegex(bucketName) {
 			BadRequest(w, r)
@@ -43,12 +52,18 @@ func GET(w http.ResponseWriter, r *http.Request, bucketName string) {
 	ListAllMyAllBucketsResult := NestForXML()
 
 	OkRequestWithHeaders(w, r)
-	out, _ := xml.MarshalIndent(ListAllMyAllBucketsResult, "  ", "  ")
+	out, _ := xml.MarshalIndent(
+		ListAllMyAllBucketsResult,
+		"  ",
+		"  ",
+	)
 	fmt.Fprint(w, xml.Header)
 	fmt.Fprintln(w, string(out))
 }
 
-func DELETE(w http.ResponseWriter, r *http.Request, bucketName string) {
+func DELETE(w http.ResponseWriter, r *http.Request,
+	bucketName string,
+) {
 	if !CheckRegex(bucketName) {
 		BadRequest(w, r)
 		return
@@ -60,7 +75,10 @@ func DELETE(w http.ResponseWriter, r *http.Request, bucketName string) {
 				return
 			} else {
 				DeleteFromBucketNames(bucket.Name)
-				AllBuckets[SessionUser.UserID] = append(AllBuckets[SessionUser.UserID][:i], AllBuckets[SessionUser.UserID][i+1:]...)
+				AllBuckets[SessionUser.UserID] = append(
+					AllBuckets[SessionUser.UserID][:i],
+					AllBuckets[SessionUser.UserID][i+1:]...,
+				)
 				NoContentRequest(w, r)
 				return
 			}

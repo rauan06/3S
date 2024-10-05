@@ -19,7 +19,7 @@ var (
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	method := r.Method
-	bucketName := r.URL.Path[1:]
+	URL := r.URL.Path[1:]
 
 	if SessionUser == nil {
 		SessionUser = NewUser()
@@ -27,15 +27,19 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	switch method {
 	case "PUT":
-		PUT(w, r, bucketName)
+		PUT(w, r, URL)
 		return
 
 	case "GET":
-		GET(w, r, bucketName)
+		GET(w, r, URL)
 		return
 
 	case "DELETE":
-		DELETE(w, r, bucketName)
+		DELETE(w, r, URL)
+		return
+
+	default:
+		MethodNotAllowed(w, r)
 		return
 	}
 }
