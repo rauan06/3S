@@ -12,7 +12,7 @@ var (
 	ValidBucketNameRegex = regexp.MustCompile("^([a-z0-9.-]{3,63})$")
 	IpAddressRegex       = regexp.MustCompile(`^(\d{1,3}\.){3}\d{1,3}$`)
 	DoubleDashPeriod     = regexp.MustCompile(`[-]{2}|\.\.`)
-	AllBuckets           = &Buckets{}
+	AllBuckets           []*Bucket
 	AllUsers             = &Users{}
 	SessionUser          *User
 	CookieID             string

@@ -11,7 +11,6 @@ func LoadIDs() {
 
 	IDs, err := os.ReadFile("buckets/id.xml")
 	if err != nil {
-		os.WriteFile("buckets/id.xml", nil, 666)
 	} else if len(IDs) != 0 {
 		err := xml.Unmarshal(IDs, &idNode)
 		if err != nil {

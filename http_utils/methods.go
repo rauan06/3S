@@ -2,6 +2,7 @@ package http_utils
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 
@@ -17,47 +18,40 @@ var (
 func PUT(w http.ResponseWriter, r *http.Request,
 	URL string,
 ) {
-	bucketName := URL[1:]
+	log.Println(AllBuckets)
+	bucketName := URL
 
-	// Check if SessionUser is nil and handle accordingly
 	if SessionUser == nil {
 		cookieValue, err := r.Cookie("session_id")
 		if err != nil {
-			// Create a new user if no session cookie is found
-			newUser := NewUser("cookie", utils.MdHashing("cookiepass"))
-			value := newUser.UserID
-			CookieID = value // Store the new session ID
+			SessionUser = NewUser("cookie", utils.MdHashing("cookiepass"))
+			value := SessionUser.UserID
+			CookieID = value
 
-			fmt.Fprintf(w, "You now have your new cookieID,\n"+
-				"you'll need to provide this ID \n"+
-				"if you want to work on the bucket\n"+
-				"again, by using this command:\n"+
-				"*curl -b \"session_id=your-session-id link*\"\n")
-			fmt.Fprintf(w, "\n CookieID: %s\n", value)
-			return // Exit early to avoid further processing
+			fmt.Fprintf(w, "CookieID: %s\n", value)
+		} else {
+			CookieID = cookieValue.Value
 		}
-
-		// If we do have a cookie, extract its value
-		CookieID = cookieValue.Value
 	}
 
-	// Validate the bucket name against the regex
 	if !CheckRegex(bucketName) {
 		BadRequest(w, r)
 		return
 	}
 
-	// Check for bucket existence
-	for _, bucket := range AllBuckets.List {
+	for _, bucket := range AllBuckets {
 		if bucket.Name == bucketName {
 			BadRequest(w, r)
 			return
 		}
 	}
-
-	// Create a new bucket
 	newBucket := NewBucket(bucketName, SessionUser.UserID, nil)
-	AllBuckets.List = append(AllBuckets.List, newBucket)
+	AllBuckets = append(AllBuckets, newBucket)
+
+	if err := SaveBucketsToXMLFile(); err != nil {
+		InternalServerError(w, r)
+		return
+	}
 
 	OkRequestWithHeaders(w, r)
 }
@@ -72,7 +66,7 @@ func GET(w http.ResponseWriter, r *http.Request,
 		}
 	}
 
-	if len(AllBuckets.List) == 0 {
+	if len(AllBuckets) == 0 {
 		OkRequest(w, r)
 		return
 	}
@@ -96,15 +90,15 @@ func DELETE(w http.ResponseWriter, r *http.Request,
 		BadRequest(w, r)
 		return
 	}
-	for i, bucket := range AllBuckets.List {
+	for i, bucket := range AllBuckets {
 		if bucketName == bucket.Name {
 			if len(bucket.Data) != 0 {
 				ConflictRequest(w, r)
 				return
 			} else {
-				AllBuckets.List = append(
-					AllBuckets.List[:i],
-					AllBuckets.List[i+1:]...,
+				AllBuckets = append(
+					AllBuckets[:i],
+					AllBuckets[i+1:]...,
 				)
 				NoContentRequest(w, r)
 				return
