@@ -1,25 +1,19 @@
 package http_utils
 
-import . "triples/bucket_struct"
+import (
+	"encoding/xml"
+	"log"
+	"os"
+)
 
-func BucketIsUnique(bucketName string) bool {
-	for _, name := range BucketNames {
-		if name == bucketName {
-			return false
-		}
-	}
+// func NestForXML() *ListAllMyBucketsResult {
+// 	ListAllMyAllBucketsResult := &ListAllMyBucketsResult{}
+// 	Buckets := &Buckets{Bucket: AllBuckets[SessionUser.UserID]}
+// 	ListAllMyAllBucketsResult.Buckets = *Buckets
+// 	ListAllMyAllBucketsResult.User = *SessionUser
 
-	return true
-}
-
-func NestForXML() *ListAllMyBucketsResult {
-	ListAllMyAllBucketsResult := &ListAllMyBucketsResult{}
-	Buckets := &Buckets{Bucket: AllBuckets[SessionUser.UserID]}
-	ListAllMyAllBucketsResult.Buckets = *Buckets
-	ListAllMyAllBucketsResult.User = *SessionUser
-
-	return ListAllMyAllBucketsResult
-}
+// 	return ListAllMyAllBucketsResult
+// }
 
 func CheckRegex(test string) bool {
 	if IpAddressRegex.MatchString(test) {
@@ -37,10 +31,28 @@ func CheckRegex(test string) bool {
 	return true
 }
 
-func DeleteFromBucketNames(s string) {
-	for i := range BucketNames {
-		if BucketNames[i] == s {
-			BucketNames = append(BucketNames[:i], BucketNames[i+1:]...)
+func LoadBuckets() {
+	users, err := os.ReadFile("buckets/users.xml")
+
+	if err != nil {
+		os.WriteFile("buckets/users.xml", nil, 666)
+	} else if len(users) != 0 {
+		if err := xml.Unmarshal(users, &AllUsers); err != nil {
+			Fatal()
 		}
 	}
+
+	buckets, err := os.ReadFile("buckets/buckets.xml")
+	if err != nil {
+		os.WriteFile("buckets/buckets.xml", nil, 666)
+	} else if len(buckets) != 0 {
+		if err := xml.Unmarshal(buckets, &AllUsers); err != nil {
+			Fatal()
+		}
+	}
+}
+
+func Fatal() {
+	log.Fatal("Unable to load files")
+	os.Exit(1)
 }

@@ -52,7 +52,7 @@ func OkRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func OkRequestWithHeaders(w http.ResponseWriter, r *http.Request) {
-	if len(AllBuckets[SessionUser.UserID]) != 0 {
+	if len(AllBuckets.List) != 0 {
 		w.Header().Add("Location", r.URL.Path)
 		w.Header().Add("Connection", "close")
 		w.Header().Add("Server", "triple-s")
@@ -65,6 +65,16 @@ func MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	writeXML(w, "405 Method Not Allowed")
 	writeHeaderResponse("405 Method Not Allowed", r)
+}
+
+func ImATeapotRequest(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusTeapot)
+	writeHeaderResponse("418 I'm a teapot", r)
+}
+
+func InternalServerError(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusInternalServerError)
+	writeHeaderResponse("500 Internal Server Error", r)
 }
 
 func writeHeaderResponse(code string, r *http.Request) {

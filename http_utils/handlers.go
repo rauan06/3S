@@ -12,18 +12,15 @@ var (
 	ValidBucketNameRegex = regexp.MustCompile("^([a-z0-9.-]{3,63})$")
 	IpAddressRegex       = regexp.MustCompile(`^(\d{1,3}\.){3}\d{1,3}$`)
 	DoubleDashPeriod     = regexp.MustCompile(`[-]{2}|\.\.`)
-	AllBuckets           = make(map[int][]*Bucket)
-	BucketNames          []string
+	AllBuckets           = &Buckets{}
+	AllUsers             = &Users{}
 	SessionUser          *User
+	CookieID             string
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	method := r.Method
 	URL := r.URL.Path[1:]
-
-	if SessionUser == nil {
-		SessionUser = NewUser()
-	}
 
 	switch method {
 	case "PUT":
@@ -36,6 +33,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	case "DELETE":
 		DELETE(w, r, URL)
+		return
+
+	case "POST":
+		POST(w, r, URL)
 		return
 
 	default:
