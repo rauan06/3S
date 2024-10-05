@@ -61,10 +61,6 @@ func Fatal() {
 }
 
 func SaveBucketsToXMLFile() error {
-	if err := os.MkdirAll("buckets", 0o755); err != nil {
-		return fmt.Errorf("error creating directory: %w", err)
-	}
-
 	output, err := xml.MarshalIndent(AllBuckets, "", "  ")
 	if err != nil {
 		return fmt.Errorf("error marshalling XML: %w", err)

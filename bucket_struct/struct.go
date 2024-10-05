@@ -8,20 +8,20 @@ import (
 )
 
 type Bucket struct {
-	BucketId     int `xml:"BucketID"`
-	UserID       string
+	BucketId     string    `xml:"BucketID"`
+	UserID       string    `xml:"-"`
 	Name         string    `xml:"BucketName"`
 	CreateDate   time.Time `xml:"CreationDate"`
 	LastModified time.Time `xml:"LastModifiedDate"`
 	LifeCycle    time.Time `xml:"ExpirationDate"`
 	Status       string    `xml:"Status"`
-	Data         [][]byte
+	Data         [][]byte  `xml:"-"`
 }
 
 type User struct {
 	UserID   string `xml:"UserID"`
 	Username string `xml:"Username"`
-	Password string
+	Password string `xml:"-"`
 }
 
 type Users struct {
@@ -47,8 +47,11 @@ var (
 func NewBucket(name string, userID string, data [][]byte) *Bucket {
 	BucketId++
 
+	hashedBucketId, _ := utils.GenerateToken(strconv.Itoa(BucketId))
+	SaveIDs()
+
 	return &Bucket{
-		BucketId:     BucketId,
+		BucketId:     hashedBucketId,
 		UserID:       userID,
 		Name:         name,
 		CreateDate:   time.Now(),
@@ -61,6 +64,8 @@ func NewBucket(name string, userID string, data [][]byte) *Bucket {
 
 func NewUser(username, pass string) *User {
 	UserID++
+
+	SaveIDs()
 
 	hashedUserId, _ := utils.GenerateToken(strconv.Itoa(UserID))
 
