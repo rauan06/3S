@@ -1,10 +1,12 @@
 # Triple-S
 
-Username policy:
-    Only letters and a hyphens, underscores, digits, dots are allowed.
-    Username cannot be empty
+Password policy
 
-Password policy:
+    Only letters and a hyphens, underscores, digits, dots are allowed.
+    Username must be uniqe
+
+
+Password policy
 
     At least 8 characters
     At least one uppercase letter
