@@ -52,7 +52,7 @@ func OkRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func OkRequestWithHeaders(w http.ResponseWriter, r *http.Request) {
-	if len(buckets[sessionUser.UserID]) != 0 {
+	if len(AllBuckets[SessionUser.UserID]) != 0 {
 		w.Header().Add("Location", r.URL.Path)
 		w.Header().Add("Connection", "close")
 		w.Header().Add("Server", "triple-s")
