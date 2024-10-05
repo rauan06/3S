@@ -7,18 +7,18 @@ import (
 )
 
 type Bucket struct {
-	BucketId     int    `xml:"BucketID"`
-	Name         string `xml:"BucketName"`
-	CreateDate   time.Time
-	LastModified time.Time
-	LifeCycle    time.Time
-	Status       string
+	BucketId     int       `xml:"BucketID"`
+	Name         string    `xml:"BucketName"`
+	CreateDate   time.Time `xml:"CreationDate"`
+	LastModified time.Time `xml:"LastModifiedDate"`
+	LifeCycle    time.Time `xml:"ExpirationDate"`
+	Status       string    `xml:"Status"`
 	Data         [][]byte
 }
 
 type User struct {
-	UserID   int
-	Username string
+	UserID   int    `xml:"UserID"`
+	Username string `xml:"Username"`
 	Password string
 }
 
