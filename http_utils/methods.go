@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	. "triples/buckets"
+	. "triples/bucket_struct"
 )
 
 func PUT(w http.ResponseWriter, r *http.Request,

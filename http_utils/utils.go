@@ -1,6 +1,6 @@
 package http_utils
 
-import . "triples/buckets"
+import . "triples/bucket_struct"
 
 func BucketIsUnique(bucketName string) bool {
 	for _, name := range BucketNames {

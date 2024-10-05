@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	. "triples/buckets"
+	. "triples/bucket_struct"
 )
 
 const (

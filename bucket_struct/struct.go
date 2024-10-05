@@ -1,4 +1,4 @@
-package buckets
+package bucket_sruct
 
 import (
 	"time"

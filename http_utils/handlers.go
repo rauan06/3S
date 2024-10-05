@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"regexp"
 
-	. "triples/buckets"
+	. "triples/bucket_struct"
 )
 
 // Global variables
