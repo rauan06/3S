@@ -81,6 +81,25 @@ func SaveBucketsToXMLFile() error {
 		return fmt.Errorf("error writing to file: %w", err)
 	}
 
-	log.Printf("New XML saved to buckets.xml\n")
+	log.Printf("XML saved to buckets.xml\n")
+	return nil
+}
+
+func SaveUsersToXMLFile() error {
+	tempUsers := &Users{List: AllUsers}
+
+	output, err := xml.MarshalIndent(tempUsers, "", "  ")
+	if err != nil {
+		return fmt.Errorf("error marshalling XML: %w", err)
+	}
+
+	output = append([]byte(xml.Header), output...)
+
+	err = os.WriteFile("buckets/users.xml", output, 0o644)
+	if err != nil {
+		return fmt.Errorf("error writing to file: %w", err)
+	}
+
+	log.Printf("XML saved to users.xml\n")
 	return nil
 }

@@ -2,6 +2,7 @@ package http_utils
 
 import (
 	"net/http"
+	"os"
 	"regexp"
 
 	. "triples/bucket_struct"
@@ -30,6 +31,12 @@ func PUT(w http.ResponseWriter, r *http.Request, URL string) {
 		} else {
 			CookieID = cookieValue.Value
 		}
+		AllUsers = append(AllUsers, SessionUser)
+	} else {
+		http.SetCookie(w, &http.Cookie{
+			Name:  "session_id",
+			Value: CookieID,
+		})
 	}
 
 	if !CheckRegex(bucketName) {
@@ -48,6 +55,17 @@ func PUT(w http.ResponseWriter, r *http.Request, URL string) {
 	AllBuckets = append(AllBuckets, newBucket)
 
 	if err := SaveBucketsToXMLFile(); err != nil {
+		InternalServerError(w, r)
+		return
+	}
+
+	if err := SaveUsersToXMLFile(); err != nil {
+		InternalServerError(w, r)
+		return
+	}
+
+	path := "buckets/" + bucketName
+	if err := os.Mkdir(path, 0o700); err != nil {
 		InternalServerError(w, r)
 		return
 	}
@@ -140,6 +158,13 @@ func POST(w http.ResponseWriter, r *http.Request,
 
 	SessionUser = NewUser(username, pass)
 	CookieID, _ = utils.GenerateToken(SessionUser.UserID)
+	AllUsers = append(AllUsers, SessionUser)
+
+	if err := SaveUsersToXMLFile(); err != nil {
+		InternalServerError(w, r)
+		return
+	}
+
 	NoContentRequest(w, r)
 	return
 }
