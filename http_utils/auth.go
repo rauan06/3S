@@ -7,6 +7,10 @@ func Logout() {
 }
 
 func Login(token string) {
+	if SessionUser != nil && token == "" {
+		return
+	}
+
 	var tempUser *User
 	for _, user := range AllUsers {
 		if user.UserID == token {
