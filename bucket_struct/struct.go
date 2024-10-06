@@ -8,7 +8,7 @@ import (
 
 type Bucket struct {
 	BucketId     string    `xml:"BucketID"`
-	UserID       string    `xml:"SessionID"`
+	SessionID    string    `xml:"SessionID"`
 	Name         string    `xml:"BucketName"`
 	PathToBucket string    `xml:"Path"`
 	CreateDate   time.Time `xml:"CreationDate"`
@@ -19,8 +19,8 @@ type Bucket struct {
 }
 
 type ListAllMyAllBucketsResult struct {
-	Buckets []*Bucket
-	Owner   *User
+	Bucket []*Bucket
+	Owner  *User
 }
 
 type User struct {
@@ -59,7 +59,7 @@ func NewBucket(name string, userID string, data [][]byte, pathToDir string) *Buc
 
 	return &Bucket{
 		BucketId:     hashedBucketId,
-		UserID:       userID,
+		SessionID:    userID,
 		PathToBucket: pathToDir + "/" + name,
 		Name:         name,
 		CreateDate:   time.Now(),
@@ -70,7 +70,7 @@ func NewBucket(name string, userID string, data [][]byte, pathToDir string) *Buc
 	}
 }
 
-func NewUser(username, pass string, pathToDir string) *User {
+func NewUser(username, pathToDir string) *User {
 	UserID++
 
 	SaveIDs()

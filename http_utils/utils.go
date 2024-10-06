@@ -9,21 +9,11 @@ import (
 	. "triples/bucket_struct"
 )
 
-func NestForXML(bucket *Bucket, user *User) (*ListAllMyAllBucketsResult, error) {
+func NestForXML(bucket *Bucket) (*ListAllMyAllBucketsResult, error) {
 	var tempBuckets []*Bucket
 
-	var tempUser *User
-
-	if SessionUser == nil && user == nil {
+	if SessionUser == nil {
 		return nil, fmt.Errorf("Invalid token")
-	}
-
-	if SessionUser != nil {
-		tempUser = SessionUser
-	}
-
-	if user != nil {
-		tempUser = user
 	}
 
 	var bucketsToProcess []*Bucket
@@ -34,14 +24,14 @@ func NestForXML(bucket *Bucket, user *User) (*ListAllMyAllBucketsResult, error) 
 	}
 
 	for _, b := range bucketsToProcess {
-		if b.UserID == tempUser.UserID {
+		if b.SessionID == SessionUser.UserID {
 			tempBuckets = append(tempBuckets, b)
 		}
 	}
 
 	result := &ListAllMyAllBucketsResult{
-		Buckets: tempBuckets,
-		Owner:   tempUser,
+		Bucket: tempBuckets,
+		Owner:  SessionUser,
 	}
 
 	return result, nil
