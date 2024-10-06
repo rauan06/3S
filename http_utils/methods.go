@@ -85,7 +85,12 @@ func GET(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(bucketName) == 0 {
-		result, _ := NestForXML(nil, nil)
+		result, err := NestForXML(nil, nil)
+		if err != nil {
+			ForbiddenRequest(w, r)
+			return
+		}
+
 		respondWithXML(w, r, result)
 		return
 	}
@@ -93,12 +98,14 @@ func GET(w http.ResponseWriter, r *http.Request) {
 	switch len(pathParts) {
 	case 1:
 		handleBucketRequest(w, r, bucketName, token)
+		return
 	case 2:
 		fmt.Println(objectName)
 		return
 	}
 
 	NotFoundRequest(w, r)
+	return
 }
 
 func handleBucketRequest(w http.ResponseWriter, r *http.Request, bucketName, token string) {
@@ -117,7 +124,11 @@ func handleBucketRequest(w http.ResponseWriter, r *http.Request, bucketName, tok
 
 	for _, bucket := range AllBuckets {
 		if bucket.Name == bucketName {
-			result, _ := NestForXML(bucket, tempUser)
+			result, err := NestForXML(bucket, tempUser)
+			if err != nil {
+				ForbiddenRequest(w, r)
+				return
+			}
 			respondWithXML(w, r, result)
 			return
 		}

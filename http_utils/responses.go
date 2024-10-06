@@ -33,6 +33,12 @@ func ConflictRequest(w http.ResponseWriter, r *http.Request) {
 	writeHeaderResponse("409 Conflict", r)
 }
 
+func ForbiddenRequest(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusConflict)
+	writeXML(w, "Invalid token", http.StatusConflict)
+	writeHeaderResponse("403 Forbidden", r)
+}
+
 func NoContentRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 	writeXML(w, "204 No Content", http.StatusNoContent)

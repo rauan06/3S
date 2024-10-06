@@ -93,10 +93,6 @@ func LoadBuckets(pathToDir string) {
 	}
 }
 
-func Fatal(err error) {
-	log.Fatal(err)
-}
-
 func SaveBucketsToXMLFile() error {
 	tempBuckets := &Buckets{List: AllBuckets}
 
