@@ -132,6 +132,11 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 			} else {
 				AllBuckets = append(AllBuckets[:i], AllBuckets[i+1:]...)
 
+				if err := os.RemoveAll(bucket.PathToBucket); err != nil {
+					InternalServerError(w, r)
+					return
+				}
+
 				if err := SaveBucketsToXMLFile(); err != nil {
 					InternalServerError(w, r)
 					return
