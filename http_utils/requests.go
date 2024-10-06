@@ -98,8 +98,17 @@ func writeHeaderResponse(code string, r *http.Request) {
 }
 
 func writeXML(w http.ResponseWriter, msg string) {
-	var nf Response = Response(msg)
-	out, _ := xml.MarshalIndent(nf, "  ", "  ")
-	fmt.Fprint(w, xml.Header)
-	fmt.Fprintln(w, string(out))
+	nf := Response(msg)
+	out, err := xml.MarshalIndent(nf, "", "  ")
+	if err != nil {
+		log.Printf("error marshalling XML: %v", err)
+		return
+	}
+
+	// Set the content type
+	w.Header().Set("Content-Type", "application/xml")
+	// Write the XML header and response
+	w.Write([]byte(xml.Header))
+	w.Write(out)
+	w.Write([]byte{'\n'})
 }

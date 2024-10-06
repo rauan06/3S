@@ -37,8 +37,6 @@ func SaveIDs() {
 		log.Printf("error writing to file: %v\n", err)
 		return
 	}
-
-	log.Println("IDs saved successfully to buckets/id.xml")
 }
 
 func fatal() {

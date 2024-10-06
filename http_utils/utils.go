@@ -35,33 +35,41 @@ func CheckRegex(test string) bool {
 }
 
 func LoadBuckets() {
-	users, err := os.ReadFile("buckets/users.xml")
-
-	tempBuckets := &Buckets{}
+	users, err := os.ReadFile("buckets/buckets.xml")
 	if err != nil {
-	} else if len(users) != 0 {
-		if err := xml.Unmarshal(users, tempBuckets); err != nil {
-			Fatal()
-		}
-		AllBuckets = tempBuckets.List
+		log.Printf("Error reading buckets.xml: %v", err)
+		return
 	}
 
-	buckets, err := os.ReadFile("buckets/buckets.xml")
+	tempBuckets := &Buckets{}
+	if len(users) != 0 {
+		if err := xml.Unmarshal(users, tempBuckets); err != nil {
+			Fatal(fmt.Errorf("error unmarshalling buckets.xml: %w", err))
+		}
+		AllBuckets = append(AllBuckets, tempBuckets.List...)
+	}
+
+	buckets, err := os.ReadFile("buckets/users.xml")
 	if err != nil {
-	} else if len(buckets) != 0 {
-		if err := xml.Unmarshal(buckets, &AllBuckets); err != nil {
-			Fatal()
+		log.Printf("Error reading users.xml: %v", err)
+		return
+	}
+
+	if len(buckets) != 0 {
+		if err := xml.Unmarshal(buckets, &AllUsers); err != nil {
+			Fatal(fmt.Errorf("error unmarshalling users.xml: %w", err))
 		}
 	}
 }
 
-func Fatal() {
-	log.Fatal("Unable to load files")
-	os.Exit(1)
+func Fatal(err error) {
+	log.Fatal(err)
 }
 
 func SaveBucketsToXMLFile() error {
-	output, err := xml.MarshalIndent(AllBuckets, "", "  ")
+	tempBuckets := &Buckets{List: AllBuckets}
+
+	output, err := xml.MarshalIndent(tempBuckets, "", "  ")
 	if err != nil {
 		return fmt.Errorf("error marshalling XML: %w", err)
 	}

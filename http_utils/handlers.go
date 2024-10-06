@@ -13,7 +13,7 @@ var (
 	IpAddressRegex       = regexp.MustCompile(`^(\d{1,3}\.){3}\d{1,3}$`)
 	DoubleDashPeriod     = regexp.MustCompile(`[-]{2}|\.\.`)
 	AllBuckets           []*Bucket
-	AllUsers             = &Users{}
+	AllUsers             []*User
 	SessionUser          *User
 	CookieID             string
 )

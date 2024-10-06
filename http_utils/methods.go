@@ -1,8 +1,6 @@
 package http_utils
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"regexp"
 
@@ -15,10 +13,7 @@ var (
 	passRegex     = regexp.MustCompile(`^[A-Za-z\d]{8,}$`)
 )
 
-func PUT(w http.ResponseWriter, r *http.Request,
-	URL string,
-) {
-	log.Println(AllBuckets)
+func PUT(w http.ResponseWriter, r *http.Request, URL string) {
 	bucketName := URL
 
 	if SessionUser == nil {
@@ -28,7 +23,10 @@ func PUT(w http.ResponseWriter, r *http.Request,
 			value := SessionUser.UserID
 			CookieID = value
 
-			fmt.Fprintf(w, "CookieID: %s\n", value)
+			http.SetCookie(w, &http.Cookie{
+				Name:  "session_id",
+				Value: value,
+			})
 		} else {
 			CookieID = cookieValue.Value
 		}
@@ -41,10 +39,11 @@ func PUT(w http.ResponseWriter, r *http.Request,
 
 	for _, bucket := range AllBuckets {
 		if bucket.Name == bucketName {
-			BadRequest(w, r)
+			ConflictRequest(w, r)
 			return
 		}
 	}
+
 	newBucket := NewBucket(bucketName, SessionUser.UserID, nil)
 	AllBuckets = append(AllBuckets, newBucket)
 
@@ -54,6 +53,7 @@ func PUT(w http.ResponseWriter, r *http.Request,
 	}
 
 	OkRequestWithHeaders(w, r)
+	return
 }
 
 func GET(w http.ResponseWriter, r *http.Request,
@@ -125,7 +125,7 @@ func POST(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	for _, user := range AllUsers.List {
+	for _, user := range AllUsers {
 		if user.Username == username {
 			if user.Password == utils.MdHashing(pass) {
 				SessionUser = NewUser(username, pass)
