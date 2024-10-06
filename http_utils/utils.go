@@ -9,28 +9,42 @@ import (
 	. "triples/bucket_struct"
 )
 
-func NestForXML(bucket *Bucket) *ListAllMyAllBucketsResult {
-	TempBuckets := []*Bucket{}
+func NestForXML(bucket *Bucket, user *User) (*ListAllMyAllBucketsResult, error) {
+	var tempBuckets []*Bucket
 
-	if bucket != nil {
-		TempBuckets = append(TempBuckets, bucket)
-	} else {
-		TempBuckets = append(TempBuckets, AllBuckets...)
+	var tempUser *User
+
+	if SessionUser == nil && user == nil {
+		return nil, fmt.Errorf("Invalid token")
 	}
 
-	ListAllMyAllBucketsResult := &ListAllMyAllBucketsResult{}
-	tempBuckets := []*Bucket{}
+	if SessionUser != nil {
+		tempUser = SessionUser
+	}
 
-	for _, bucket := range TempBuckets {
-		if bucket.UserID == SessionUser.UserID {
-			tempBuckets = append(tempBuckets, bucket)
+	if user != nil {
+		tempUser = user
+	}
+
+	var bucketsToProcess []*Bucket
+	if bucket != nil {
+		bucketsToProcess = []*Bucket{bucket}
+	} else {
+		bucketsToProcess = AllBuckets
+	}
+
+	for _, b := range bucketsToProcess {
+		if b.UserID == tempUser.UserID {
+			tempBuckets = append(tempBuckets, b)
 		}
 	}
 
-	ListAllMyAllBucketsResult.Buckets = tempBuckets
-	ListAllMyAllBucketsResult.Owner = SessionUser
+	result := &ListAllMyAllBucketsResult{
+		Buckets: tempBuckets,
+		Owner:   tempUser,
+	}
 
-	return ListAllMyAllBucketsResult
+	return result, nil
 }
 
 func CheckRegex(test string) bool {

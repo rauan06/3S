@@ -8,7 +8,7 @@ import (
 
 type Bucket struct {
 	BucketId     string    `xml:"BucketID"`
-	UserID       string    `xml:"-"`
+	UserID       string    `xml:"OwnerID"`
 	Name         string    `xml:"BucketName"`
 	PathToBucket string    `xml:"Path"`
 	CreateDate   time.Time `xml:"CreationDate"`
@@ -26,7 +26,6 @@ type ListAllMyAllBucketsResult struct {
 type User struct {
 	UserID   string `xml:"UserID"`
 	Username string `xml:"Username"`
-	Password string
 }
 
 type Users struct {
@@ -81,6 +80,5 @@ func NewUser(username, pass string, pathToDir string) *User {
 	return &User{
 		UserID:   hashedUserId,
 		Username: username,
-		Password: utils.MdHashing(pass),
 	}
 }

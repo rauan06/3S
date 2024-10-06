@@ -15,7 +15,6 @@ var (
 	AllBuckets           []*Bucket
 	AllUsers             []*User
 	SessionUser          *User
-	CookieID             string
 	PathToDir            string
 )
 
@@ -34,10 +33,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	case "DELETE":
 		DELETE(w, r, URL)
-		return
-
-	case "POST":
-		POST(w, r, URL)
 		return
 
 	default:
