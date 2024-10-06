@@ -9,6 +9,7 @@ import (
 	. "triples/bucket_struct"
 )
 
+// TODO: Remove SessionID and Data from bucket's struct
 func NestForXML(bucket *Bucket) (*ListAllMyAllBucketsResult, error) {
 	var tempBuckets []*Bucket
 
