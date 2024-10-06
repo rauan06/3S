@@ -25,5 +25,7 @@ func Login(token string) {
 		tempUser = NewUser("cookie", PathToDir)
 	}
 
+	AllUsers = append(AllUsers, tempUser)
+
 	SessionUser = tempUser
 }
