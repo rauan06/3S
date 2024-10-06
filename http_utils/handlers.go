@@ -16,6 +16,7 @@ var (
 	AllUsers             []*User
 	SessionUser          *User
 	CookieID             string
+	PathToDir            string
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -24,7 +25,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	switch method {
 	case "PUT":
-		PUT(w, r, URL)
+		PUT(w, r, URL, PathToDir)
 		return
 
 	case "GET":
@@ -36,7 +37,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 
 	case "POST":
-		POST(w, r, URL)
+		POST(w, r, URL, PathToDir)
 		return
 
 	default:

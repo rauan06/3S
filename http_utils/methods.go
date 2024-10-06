@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"triples/utils"
 
 	. "triples/bucket_struct"
-	"triples/utils"
 )
 
 var (
@@ -16,7 +16,7 @@ var (
 	passRegex     = regexp.MustCompile(`^[A-Za-z\d]{8,}$`)
 )
 
-func PUT(w http.ResponseWriter, r *http.Request, URL string) {
+func PUT(w http.ResponseWriter, r *http.Request, URL string, pathToDir string) {
 	bucketName := URL
 
 	if !CheckRegex(bucketName) {
@@ -34,7 +34,7 @@ func PUT(w http.ResponseWriter, r *http.Request, URL string) {
 	if SessionUser == nil {
 		cookieValue, err := r.Cookie("session_id")
 		if err != nil {
-			SessionUser = NewUser("cookie", utils.MdHashing("cookiepass"))
+			SessionUser = NewUser("cookie", utils.MdHashing("cookiepass"), pathToDir)
 			value := SessionUser.UserID
 			CookieID = value
 
@@ -53,7 +53,7 @@ func PUT(w http.ResponseWriter, r *http.Request, URL string) {
 		})
 	}
 
-	newBucket := NewBucket(bucketName, SessionUser.UserID, nil)
+	newBucket := NewBucket(bucketName, SessionUser.UserID, nil, pathToDir)
 	AllBuckets = append(AllBuckets, newBucket)
 
 	if err := SaveBucketsToXMLFile(); err != nil {
@@ -66,7 +66,7 @@ func PUT(w http.ResponseWriter, r *http.Request, URL string) {
 		return
 	}
 
-	path := "buckets/" + bucketName
+	path := pathToDir + "/" + bucketName
 	if err := os.Mkdir(path, 0o700); err != nil {
 		InternalServerError(w, r)
 		return
@@ -128,7 +128,7 @@ func DELETE(w http.ResponseWriter, r *http.Request,
 }
 
 func POST(w http.ResponseWriter, r *http.Request,
-	URL string,
+	URL string, pathToDir string,
 ) {
 	if SessionUser != nil {
 		ImATeapotRequest(w, r)
@@ -146,7 +146,7 @@ func POST(w http.ResponseWriter, r *http.Request,
 	for _, user := range AllUsers {
 		if user.Username == username {
 			if user.Password == utils.MdHashing(pass) {
-				SessionUser = NewUser(username, pass)
+				SessionUser = NewUser(username, pass, pathToDir)
 				NoContentRequest(w, r)
 				return
 			} else {
@@ -156,7 +156,7 @@ func POST(w http.ResponseWriter, r *http.Request,
 		}
 	}
 
-	SessionUser = NewUser(username, pass)
+	SessionUser = NewUser(username, pass, pathToDir)
 	CookieID, _ = utils.GenerateToken(SessionUser.UserID)
 	AllUsers = append(AllUsers, SessionUser)
 

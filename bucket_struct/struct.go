@@ -3,7 +3,6 @@ package bucket_struct
 import (
 	"strconv"
 	"time"
-
 	"triples/utils"
 )
 
@@ -11,6 +10,7 @@ type Bucket struct {
 	BucketId     string    `xml:"BucketID"`
 	UserID       string    `xml:"-"`
 	Name         string    `xml:"BucketName"`
+	PathToBucket string    `xml:"Path"`
 	CreateDate   time.Time `xml:"CreationDate"`
 	LastModified time.Time `xml:"LastModifiedDate"`
 	LifeCycle    time.Time `xml:"ExpirationDate"`
@@ -52,7 +52,7 @@ var (
 	UserID   = 0
 )
 
-func NewBucket(name string, userID string, data [][]byte) *Bucket {
+func NewBucket(name string, userID string, data [][]byte, pathToDir string) *Bucket {
 	BucketId++
 
 	hashedBucketId, _ := utils.GenerateToken(strconv.Itoa(BucketId))
@@ -61,6 +61,7 @@ func NewBucket(name string, userID string, data [][]byte) *Bucket {
 	return &Bucket{
 		BucketId:     hashedBucketId,
 		UserID:       userID,
+		PathToBucket: pathToDir + "/" + name,
 		Name:         name,
 		CreateDate:   time.Now(),
 		LastModified: time.Now(),
@@ -70,7 +71,7 @@ func NewBucket(name string, userID string, data [][]byte) *Bucket {
 	}
 }
 
-func NewUser(username, pass string) *User {
+func NewUser(username, pass string, pathToDir string) *User {
 	UserID++
 
 	SaveIDs()

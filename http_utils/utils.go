@@ -41,8 +41,8 @@ func CheckRegex(test string) bool {
 	return true
 }
 
-func LoadBuckets() {
-	buckets, err := os.ReadFile("buckets/buckets.xml")
+func LoadBuckets(pathToDir string) {
+	buckets, err := os.ReadFile(pathToDir + "/buckets.xml")
 	if err != nil {
 		log.Printf("Error reading buckets.xml: %v", err)
 		return
@@ -56,7 +56,7 @@ func LoadBuckets() {
 		AllBuckets = append(AllBuckets, tempBuckets.List...)
 	}
 
-	users, err := os.ReadFile("buckets/users.xml")
+	users, err := os.ReadFile(pathToDir + "/users.xml")
 	if err != nil {
 		log.Printf("Error reading users.xml: %v", err)
 		return
@@ -85,7 +85,7 @@ func SaveBucketsToXMLFile() error {
 
 	output = append([]byte(xml.Header), output...)
 
-	err = os.WriteFile("buckets/buckets.xml", output, 0o644)
+	err = os.WriteFile("storage/buckets.xml", output, 0o644)
 	if err != nil {
 		return fmt.Errorf("error writing to file: %w", err)
 	}
@@ -103,7 +103,7 @@ func SaveUsersToXMLFile() error {
 
 	output = append([]byte(xml.Header), output...)
 
-	err = os.WriteFile("buckets/users.xml", output, 0o644)
+	err = os.WriteFile("storage/users.xml", output, 0o644)
 	if err != nil {
 		return fmt.Errorf("error writing to file: %w", err)
 	}

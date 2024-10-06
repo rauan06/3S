@@ -6,10 +6,10 @@ import (
 	"os"
 )
 
-func LoadIDs() {
+func LoadIDs(pathToDir string) {
 	idNode := &IDs{}
 
-	IDs, err := os.ReadFile("buckets/id.xml")
+	IDs, err := os.ReadFile(pathToDir + "/id.xml")
 	if err != nil {
 	} else if len(IDs) != 0 {
 		err := xml.Unmarshal(IDs, &idNode)
@@ -32,7 +32,7 @@ func SaveIDs() {
 
 	data = append([]byte(xml.Header), data...)
 
-	err = os.WriteFile("buckets/id.xml", data, 0o600) // Use octal notation for permissions
+	err = os.WriteFile("storage/id.xml", data, 0o600) // Use octal notation for permissions
 	if err != nil {
 		log.Printf("error writing to file: %v\n", err)
 		return
