@@ -119,6 +119,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Remove files from directory using Removeall()
 	for i, bucket := range AllBuckets {
 		if bucketName == bucket.Name {
 			if len(bucket.Data) != 0 {
@@ -132,7 +133,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 			} else {
 				AllBuckets = append(AllBuckets[:i], AllBuckets[i+1:]...)
 
-				if err := os.RemoveAll(bucket.PathToBucket); err != nil {
+				if err := os.Remove(bucket.PathToBucket); err != nil {
 					InternalServerError(w, r)
 					return
 				}
