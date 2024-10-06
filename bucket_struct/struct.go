@@ -8,7 +8,7 @@ import (
 
 type Bucket struct {
 	BucketId     string    `xml:"BucketID"`
-	UserID       string    `xml:"OwnerID"`
+	UserID       string    `xml:"SessionID"`
 	Name         string    `xml:"BucketName"`
 	PathToBucket string    `xml:"Path"`
 	CreateDate   time.Time `xml:"CreationDate"`
@@ -79,6 +79,6 @@ func NewUser(username, pass string, pathToDir string) *User {
 
 	return &User{
 		UserID:   hashedUserId,
-		Username: username,
+		Username: username + strconv.Itoa(UserID),
 	}
 }

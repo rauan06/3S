@@ -20,7 +20,6 @@ var (
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	method := r.Method
-	URL := r.URL.Path[1:]
 
 	switch method {
 	case "PUT":
@@ -32,7 +31,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 
 	case "DELETE":
-		DELETE(w, r, URL)
+		DELETE(w, r)
 		return
 
 	default:

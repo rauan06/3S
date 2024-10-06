@@ -42,6 +42,7 @@ func PUT(w http.ResponseWriter, r *http.Request) {
 
 	if SessionUser == nil {
 		SessionUser = NewUser("cookie", utils.MdHashing("cookiepass"), PathToDir)
+		AllUsers = append(AllUsers, SessionUser)
 	}
 
 	newBucket := NewBucket(bucketName, SessionUser.UserID, nil, PathToDir)
@@ -79,15 +80,15 @@ func GET(w http.ResponseWriter, r *http.Request) {
 
 	token := r.URL.Query().Get("session_id")
 
-	if len(AllBuckets) == 0 || (SessionUser == nil && token == "") {
-		NotFoundRequest(w, r)
+	if SessionUser == nil && token == "" {
+		ForbiddenRequest(w, r)
 		return
 	}
 
 	if len(bucketName) == 0 {
 		result, err := NestForXML(nil, nil)
 		if err != nil {
-			ForbiddenRequest(w, r)
+			ForbiddenRequestTokenInvalid(w, r)
 			return
 		}
 
@@ -108,6 +109,50 @@ func GET(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func DELETE(w http.ResponseWriter, r *http.Request) {
+	pathParts := strings.SplitAfter(r.URL.Path[1:], "/")
+	bucketName := pathParts[0]
+
+	// TODO: Object deletion
+	// var objectName string
+
+	// if len(pathParts) > 1 {
+	// 	objectName = pathParts[1]
+	// }
+
+	if !CheckRegex(bucketName) {
+		BadRequest(w, r)
+		return
+	}
+
+	for i, bucket := range AllBuckets {
+		if bucketName == bucket.Name {
+			if len(bucket.Data) != 0 {
+				ConflictRequest(w, r)
+				return
+			}
+
+			if bucket.UserID != SessionUser.UserID {
+				ForbiddenRequestTokenInvalid(w, r)
+				return
+			} else {
+				AllBuckets = append(AllBuckets[:i], AllBuckets[i+1:]...)
+
+				if err := SaveBucketsToXMLFile(); err != nil {
+					InternalServerError(w, r)
+					return
+				}
+
+				NoContentRequest(w, r)
+				return
+			}
+		}
+	}
+
+	NotFoundRequest(w, r)
+	return
+}
+
 func handleBucketRequest(w http.ResponseWriter, r *http.Request, bucketName, token string) {
 	if !CheckRegex(bucketName) {
 		BadRequest(w, r)
@@ -117,7 +162,7 @@ func handleBucketRequest(w http.ResponseWriter, r *http.Request, bucketName, tok
 	var tempUser *User
 	for _, user := range AllUsers {
 		if user.UserID == token {
-			tempUser = &User{}
+			tempUser = user
 			break
 		}
 	}
@@ -126,7 +171,7 @@ func handleBucketRequest(w http.ResponseWriter, r *http.Request, bucketName, tok
 		if bucket.Name == bucketName {
 			result, err := NestForXML(bucket, tempUser)
 			if err != nil {
-				ForbiddenRequest(w, r)
+				ForbiddenRequestTokenInvalid(w, r)
 				return
 			}
 			respondWithXML(w, r, result)
@@ -142,25 +187,4 @@ func respondWithXML(w http.ResponseWriter, r *http.Request, result interface{}) 
 	out, _ := xml.MarshalIndent(result, " ", "  ")
 	fmt.Fprint(w, xml.Header)
 	fmt.Fprintln(w, string(out))
-}
-
-func DELETE(w http.ResponseWriter, r *http.Request, bucketName string) {
-	if !CheckRegex(bucketName) {
-		BadRequest(w, r)
-		return
-	}
-
-	for i, bucket := range AllBuckets {
-		if bucketName == bucket.Name {
-			if len(bucket.Data) != 0 {
-				ConflictRequest(w, r)
-				return
-			}
-			AllBuckets = append(AllBuckets[:i], AllBuckets[i+1:]...)
-			NoContentRequest(w, r)
-			return
-		}
-	}
-
-	NotFoundRequest(w, r)
 }
