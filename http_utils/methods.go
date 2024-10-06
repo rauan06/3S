@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 	"triples/utils"
 
 	. "triples/bucket_struct"
@@ -16,8 +17,8 @@ var (
 	passRegex     = regexp.MustCompile(`^[A-Za-z\d]{8,}$`)
 )
 
-func PUT(w http.ResponseWriter, r *http.Request, URL string, pathToDir string) {
-	bucketName := URL
+func PUT(w http.ResponseWriter, r *http.Request) {
+	bucketName := r.URL.Path[1:]
 
 	if !CheckRegex(bucketName) {
 		BadRequest(w, r)
@@ -34,7 +35,7 @@ func PUT(w http.ResponseWriter, r *http.Request, URL string, pathToDir string) {
 	if SessionUser == nil {
 		cookieValue, err := r.Cookie("session_id")
 		if err != nil {
-			SessionUser = NewUser("cookie", utils.MdHashing("cookiepass"), pathToDir)
+			SessionUser = NewUser("cookie", utils.MdHashing("cookiepass"), PathToDir)
 			value := SessionUser.UserID
 			CookieID = value
 
@@ -53,7 +54,7 @@ func PUT(w http.ResponseWriter, r *http.Request, URL string, pathToDir string) {
 		})
 	}
 
-	newBucket := NewBucket(bucketName, SessionUser.UserID, nil, pathToDir)
+	newBucket := NewBucket(bucketName, SessionUser.UserID, nil, PathToDir)
 	AllBuckets = append(AllBuckets, newBucket)
 
 	if err := SaveBucketsToXMLFile(); err != nil {
@@ -66,9 +67,9 @@ func PUT(w http.ResponseWriter, r *http.Request, URL string, pathToDir string) {
 		return
 	}
 
-	path := pathToDir + "/" + bucketName
+	path := PathToDir + "/" + bucketName
 	if err := os.Mkdir(path, 0o700); err != nil {
-		InternalServerError(w, r)
+		ConflictRequest(w, r)
 		return
 	}
 
@@ -76,29 +77,57 @@ func PUT(w http.ResponseWriter, r *http.Request, URL string, pathToDir string) {
 	return
 }
 
-func GET(w http.ResponseWriter, r *http.Request,
-	bucketName string,
-) {
-	// if !CheckRegex(bucketName) {
-	// 	BadRequest(w, r)
-	// 	return
-	// }
+func GET(w http.ResponseWriter, r *http.Request) {
+	objectpath := strings.SplitAfter(r.URL.Path[1:], "/")
+	bucketName := objectpath[0]
 
 	if len(AllBuckets) == 0 || SessionUser == nil {
 		NoContentRequest(w, r)
 		return
 	}
 
-	ListAllMyAllBucketsResult := NestForXML()
+	if len(bucketName) == 0 {
+		ListAllMyAllBucketsResult := NestForXML(nil)
 
-	OkRequestWithHeaders(w, r)
-	out, _ := xml.MarshalIndent(
-		ListAllMyAllBucketsResult,
-		" ",
-		"  ",
-	)
-	fmt.Fprint(w, xml.Header)
-	fmt.Fprintln(w, string(out))
+		OkRequestWithHeaders(w, r)
+		out, _ := xml.MarshalIndent(
+			ListAllMyAllBucketsResult,
+			" ",
+			"  ",
+		)
+		fmt.Fprint(w, xml.Header)
+		fmt.Fprintln(w, string(out))
+		return
+	}
+
+	switch len(objectpath) {
+	case 1:
+		if !CheckRegex(bucketName) {
+			BadRequest(w, r)
+			return
+		}
+
+		for _, bucket := range AllBuckets {
+			if bucket.Name == bucketName {
+				ListAllMyAllBucketsResult := NestForXML(bucket)
+
+				OkRequestWithHeaders(w, r)
+				out, _ := xml.MarshalIndent(
+					ListAllMyAllBucketsResult,
+					" ",
+					"  ",
+				)
+				fmt.Fprint(w, xml.Header)
+				fmt.Fprintln(w, string(out))
+				return
+			}
+		}
+
+		NoContentRequest(w, r)
+		return
+	case 2:
+		// TODO: object creation
+	}
 }
 
 func DELETE(w http.ResponseWriter, r *http.Request,
@@ -128,7 +157,7 @@ func DELETE(w http.ResponseWriter, r *http.Request,
 }
 
 func POST(w http.ResponseWriter, r *http.Request,
-	URL string, pathToDir string,
+	URL string,
 ) {
 	if SessionUser != nil {
 		ImATeapotRequest(w, r)
@@ -146,7 +175,7 @@ func POST(w http.ResponseWriter, r *http.Request,
 	for _, user := range AllUsers {
 		if user.Username == username {
 			if user.Password == utils.MdHashing(pass) {
-				SessionUser = NewUser(username, pass, pathToDir)
+				SessionUser = NewUser(username, pass, PathToDir)
 				NoContentRequest(w, r)
 				return
 			} else {
@@ -156,7 +185,7 @@ func POST(w http.ResponseWriter, r *http.Request,
 		}
 	}
 
-	SessionUser = NewUser(username, pass, pathToDir)
+	SessionUser = NewUser(username, pass, PathToDir)
 	CookieID, _ = utils.GenerateToken(SessionUser.UserID)
 	AllUsers = append(AllUsers, SessionUser)
 

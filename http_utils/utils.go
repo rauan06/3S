@@ -9,11 +9,19 @@ import (
 	. "triples/bucket_struct"
 )
 
-func NestForXML() *ListAllMyAllBucketsResult {
+func NestForXML(bucket *Bucket) *ListAllMyAllBucketsResult {
+	TempBuckets := []*Bucket{}
+
+	if bucket != nil {
+		TempBuckets = append(TempBuckets, bucket)
+	} else {
+		TempBuckets = append(TempBuckets, AllBuckets...)
+	}
+
 	ListAllMyAllBucketsResult := &ListAllMyAllBucketsResult{}
 	tempBuckets := []*Bucket{}
 
-	for _, bucket := range AllBuckets {
+	for _, bucket := range TempBuckets {
 		if bucket.UserID == SessionUser.UserID {
 			tempBuckets = append(tempBuckets, bucket)
 		}

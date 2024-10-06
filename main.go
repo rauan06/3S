@@ -14,8 +14,8 @@ import (
 func main() {
 	utils.CheckForHelpAndExit()
 
-	port := flag.Int("port", 8091, "'--port N' Port number")
-	dir := flag.String("dir", "buckets", "'--dir S' Path to the directory")
+	port := flag.Int("port", 8091, "Port number")
+	dir := flag.String("dir", "buckets", "Path to the directory")
 
 	flag.Parse()
 
@@ -27,10 +27,10 @@ func main() {
 		os.Mkdir(PathToDir, 0o700)
 	}
 
-	http.HandleFunc("/", Handler)
-	LoadBuckets(PathToDir)
-	bucket_struct.LoadIDs(PathToDir)
+	LoadBuckets(storageDir)
+	bucket_struct.LoadIDs(storageDir)
 
+	http.HandleFunc("/", Handler)
 	address := ":" + strconv.Itoa(*port)
 	log.Printf("Starting development server at http://localhost%s/\n", address)
 	log.Fatal(http.ListenAndServe(address, nil))

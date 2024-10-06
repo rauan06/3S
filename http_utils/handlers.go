@@ -25,11 +25,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	switch method {
 	case "PUT":
-		PUT(w, r, URL, PathToDir)
+		PUT(w, r)
 		return
 
 	case "GET":
-		GET(w, r, URL)
+		GET(w, r)
 		return
 
 	case "DELETE":
@@ -37,7 +37,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 
 	case "POST":
-		POST(w, r, URL, PathToDir)
+		POST(w, r, URL)
 		return
 
 	default:
