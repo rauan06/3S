@@ -2,7 +2,6 @@ package bucket_struct
 
 import (
 	"encoding/xml"
-	"fmt"
 	"log"
 	"os"
 )
@@ -11,7 +10,6 @@ func LoadIDs(pathToDir string) {
 	idNode := &IDs{}
 
 	IDs, err := os.ReadFile(pathToDir + "/id.xml")
-	fmt.Println(pathToDir + "/id.xml")
 	if err != nil {
 	} else if len(IDs) != 0 {
 		err := xml.Unmarshal(IDs, &idNode)
