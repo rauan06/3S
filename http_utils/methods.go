@@ -1,6 +1,8 @@
 package http_utils
 
 import (
+	"encoding/xml"
+	"fmt"
 	"net/http"
 	"os"
 	"regexp"
@@ -16,6 +18,18 @@ var (
 
 func PUT(w http.ResponseWriter, r *http.Request, URL string) {
 	bucketName := URL
+
+	if !CheckRegex(bucketName) {
+		BadRequest(w, r)
+		return
+	}
+
+	for _, bucket := range AllBuckets {
+		if bucket.Name == bucketName {
+			ConflictRequest(w, r)
+			return
+		}
+	}
 
 	if SessionUser == nil {
 		cookieValue, err := r.Cookie("session_id")
@@ -37,18 +51,6 @@ func PUT(w http.ResponseWriter, r *http.Request, URL string) {
 			Name:  "session_id",
 			Value: CookieID,
 		})
-	}
-
-	if !CheckRegex(bucketName) {
-		BadRequest(w, r)
-		return
-	}
-
-	for _, bucket := range AllBuckets {
-		if bucket.Name == bucketName {
-			ConflictRequest(w, r)
-			return
-		}
 	}
 
 	newBucket := NewBucket(bucketName, SessionUser.UserID, nil)
@@ -77,28 +79,26 @@ func PUT(w http.ResponseWriter, r *http.Request, URL string) {
 func GET(w http.ResponseWriter, r *http.Request,
 	bucketName string,
 ) {
-	if len(bucketName) != 0 {
-		if !CheckRegex(bucketName) {
-			BadRequest(w, r)
-			return
-		}
-	}
+	// if !CheckRegex(bucketName) {
+	// 	BadRequest(w, r)
+	// 	return
+	// }
 
-	if len(AllBuckets) == 0 {
-		OkRequest(w, r)
+	if len(AllBuckets) == 0 || SessionUser == nil {
+		NoContentRequest(w, r)
 		return
 	}
 
-	// ListAllMyAllBucketsResult := NestForXML()
+	ListAllMyAllBucketsResult := NestForXML()
 
-	// OkRequestWithHeaders(w, r)
-	// out, _ := xml.MarshalIndent(
-	// 	ListAllMyAllBucketsResult,
-	// 	"  ",
-	// 	"  ",
-	// )
-	// fmt.Fprint(w, xml.Header)
-	// fmt.Fprintln(w, string(out))
+	OkRequestWithHeaders(w, r)
+	out, _ := xml.MarshalIndent(
+		ListAllMyAllBucketsResult,
+		" ",
+		"  ",
+	)
+	fmt.Fprint(w, xml.Header)
+	fmt.Fprintln(w, string(out))
 }
 
 func DELETE(w http.ResponseWriter, r *http.Request,

@@ -9,14 +9,21 @@ import (
 	. "triples/bucket_struct"
 )
 
-// func NestForXML() *ListAllMyBucketsResult {
-// 	ListAllMyAllBucketsResult := &ListAllMyBucketsResult{}
-// 	Buckets := &Buckets{Bucket: AllBuckets[SessionUser.UserID]}
-// 	ListAllMyAllBucketsResult.Buckets = *Buckets
-// 	ListAllMyAllBucketsResult.User = *SessionUser
+func NestForXML() *ListAllMyAllBucketsResult {
+	ListAllMyAllBucketsResult := &ListAllMyAllBucketsResult{}
+	tempBuckets := []*Bucket{}
 
-// 	return ListAllMyAllBucketsResult
-// }
+	for _, bucket := range AllBuckets {
+		if bucket.UserID == SessionUser.UserID {
+			tempBuckets = append(tempBuckets, bucket)
+		}
+	}
+
+	ListAllMyAllBucketsResult.Buckets = tempBuckets
+	ListAllMyAllBucketsResult.Owner = SessionUser
+
+	return ListAllMyAllBucketsResult
+}
 
 func CheckRegex(test string) bool {
 	if IpAddressRegex.MatchString(test) {
@@ -35,30 +42,32 @@ func CheckRegex(test string) bool {
 }
 
 func LoadBuckets() {
-	users, err := os.ReadFile("buckets/buckets.xml")
+	buckets, err := os.ReadFile("buckets/buckets.xml")
 	if err != nil {
 		log.Printf("Error reading buckets.xml: %v", err)
 		return
 	}
 
 	tempBuckets := &Buckets{}
-	if len(users) != 0 {
-		if err := xml.Unmarshal(users, tempBuckets); err != nil {
-			Fatal(fmt.Errorf("error unmarshalling buckets.xml: %w", err))
+	if len(buckets) != 0 {
+		if err := xml.Unmarshal(buckets, tempBuckets); err != nil {
+			log.Fatalf("Error unmarshalling buckets.xml: %v", err)
 		}
 		AllBuckets = append(AllBuckets, tempBuckets.List...)
 	}
 
-	buckets, err := os.ReadFile("buckets/users.xml")
+	users, err := os.ReadFile("buckets/users.xml")
 	if err != nil {
 		log.Printf("Error reading users.xml: %v", err)
 		return
 	}
 
-	if len(buckets) != 0 {
-		if err := xml.Unmarshal(buckets, &AllUsers); err != nil {
-			Fatal(fmt.Errorf("error unmarshalling users.xml: %w", err))
+	tempUsers := &Users{}
+	if len(users) != 0 {
+		if err := xml.Unmarshal(users, tempUsers); err != nil {
+			log.Fatalf("Error unmarshalling users.xml: %v", err)
 		}
+		AllUsers = append(AllUsers, tempUsers.List...)
 	}
 }
 
@@ -81,7 +90,6 @@ func SaveBucketsToXMLFile() error {
 		return fmt.Errorf("error writing to file: %w", err)
 	}
 
-	log.Printf("XML saved to buckets.xml\n")
 	return nil
 }
 
@@ -100,6 +108,5 @@ func SaveUsersToXMLFile() error {
 		return fmt.Errorf("error writing to file: %w", err)
 	}
 
-	log.Printf("XML saved to users.xml\n")
 	return nil
 }

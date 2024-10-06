@@ -18,10 +18,15 @@ type Bucket struct {
 	Data         [][]byte  `xml:"-"`
 }
 
+type ListAllMyAllBucketsResult struct {
+	Buckets []*Bucket
+	Owner   *User
+}
+
 type User struct {
 	UserID   string `xml:"UserID"`
 	Username string `xml:"Username"`
-	Password string `xml:"-"`
+	Password string
 }
 
 type Users struct {
