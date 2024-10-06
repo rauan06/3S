@@ -23,31 +23,31 @@ const (
 
 func BadRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusBadRequest)
-	writeXML(w, "400 Bad Request")
+	writeXML(w, "400 Bad Request", http.StatusBadRequest)
 	writeHeaderResponse("400 Bad Request", r)
 }
 
 func ConflictRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusConflict)
-	writeXML(w, "409 Conflict")
+	writeXML(w, "409 Conflict", http.StatusConflict)
 	writeHeaderResponse("409 Conflict", r)
 }
 
 func NoContentRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
-	writeXML(w, "204 No Content")
+	writeXML(w, "204 No Content", http.StatusNoContent)
 	writeHeaderResponse("204 No Content", r)
 }
 
 func NotFoundRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
-	writeXML(w, "404 Not Found")
+	writeXML(w, "404 Not Found", http.StatusNotFound)
 	writeHeaderResponse("404 Not Found", r)
 }
 
 func OkRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	writeXML(w, "200 OK")
+	writeXML(w, "200 OK", http.StatusOK)
 	writeHeaderResponse("200 OK", r)
 }
 
@@ -63,7 +63,7 @@ func OkRequestWithHeaders(w http.ResponseWriter, r *http.Request) {
 
 func MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusMethodNotAllowed)
-	writeXML(w, "405 Method Not Allowed")
+	writeXML(w, "405 Method Not Allowed", http.StatusMethodNotAllowed)
 	writeHeaderResponse("405 Method Not Allowed", r)
 }
 
@@ -97,8 +97,8 @@ func writeHeaderResponse(code string, r *http.Request) {
 	}
 }
 
-func writeXML(w http.ResponseWriter, msg string) {
-	nf := Response(msg)
+func writeXML(w http.ResponseWriter, msg string, code int) {
+	nf := &Response{Code: code, Messege: msg}
 	out, err := xml.MarshalIndent(nf, "", "  ")
 	if err != nil {
 		log.Printf("error marshalling XML: %v", err)

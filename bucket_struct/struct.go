@@ -42,7 +42,10 @@ type IDs struct {
 	BucketId int
 }
 
-type Response string
+type Response struct {
+	Code    int
+	Messege string
+}
 
 var (
 	BucketId = 0
