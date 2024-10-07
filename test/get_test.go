@@ -5,8 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	. "triples/http_utils"
+	"triples/http_utils"
 )
 
 type nullWriter struct{}
@@ -74,7 +73,7 @@ func TestGETWithoutSession(t *testing.T) {
 			}
 
 			rr := httptest.NewRecorder()
-			handler := http.HandlerFunc(Handler)
+			handler := http.HandlerFunc(http_utils.Handler)
 
 			handler.ServeHTTP(rr, req)
 
