@@ -97,7 +97,7 @@ func GET(w http.ResponseWriter, r *http.Request) {
 
 	switch len(pathParts) {
 	case 1:
-		handleBucketRequest(w, r, bucketName, token)
+		handleBucketRequest(w, r, bucketName)
 		return
 	case 2:
 		fmt.Println(objectName)
@@ -171,7 +171,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func handleBucketRequest(w http.ResponseWriter, r *http.Request, bucketName, token string) {
+func handleBucketRequest(w http.ResponseWriter, r *http.Request, bucketName string) {
 	if !CheckRegex(bucketName) {
 		BadRequest(w, r)
 		return
