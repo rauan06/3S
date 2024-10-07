@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
 	"triples/http_utils"
 )
 
@@ -14,7 +15,7 @@ func (nw *nullWriter) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
-func TestGETWithoutSession(t *testing.T) {
+func TestGET(t *testing.T) {
 	log.SetOutput(&nullWriter{})
 
 	tests := []struct {

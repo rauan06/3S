@@ -4,10 +4,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
 	"triples/http_utils"
 )
 
-func TestPUTWithoutSession(t *testing.T) {
+func TestPUT(t *testing.T) {
 	teardownSuite := SetupSuite(t)
 	defer teardownSuite(t)
 
@@ -29,7 +30,7 @@ func TestPUTWithoutSession(t *testing.T) {
 		},
 		{
 			name:       "PUT request without session 2",
-			requestURL: "/////////////////////////////////",
+			requestURL: "/asdasdas/asdasdsad/asd?session_id=123",
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
@@ -78,7 +79,7 @@ func TestPUTWithoutSession(t *testing.T) {
 			}
 
 			if rr.Body.String() != tt.expectedBody {
-				t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), tt.expectedBody)
+				t.Errorf("handler returned unexpected body: got\n %v\n want\n %v\n", rr.Body.String(), tt.expectedBody)
 			}
 		})
 	}

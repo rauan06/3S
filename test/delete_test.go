@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
 	"triples/http_utils"
 )
 
-func TestDELETEWithoutSession(t *testing.T) {
+func TestDELETE(t *testing.T) {
 	log.SetOutput(&nullWriter{})
 
 	tests := []struct {
@@ -76,7 +77,7 @@ func TestDELETEWithoutSession(t *testing.T) {
 			}
 
 			if rr.Body.String() != tt.expectedBody {
-				t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), tt.expectedBody)
+				t.Errorf("handler returned unexpected body: got\n %v\n want\n %v\n", rr.Body.String(), tt.expectedBody)
 			}
 		})
 	}

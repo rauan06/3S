@@ -1,24 +1,26 @@
 package test
 
 import (
-	"log"
+	"os"
 	"testing"
+
+	"triples/bucket_struct"
+	. "triples/http_utils"
 )
 
 func SetupSuite(tb testing.TB) func(tb testing.TB) {
-	log.Println("setup suite")
+	StorageDir = "storage_test/"
+	os.Mkdir(StorageDir, 0o700)
 
-	// Return a function to teardown the test
-	return func(tb testing.TB) {
-		log.Println("teardown suite")
+	PathToDir = StorageDir + "/buckets"
+	if _, err := os.Stat(PathToDir); os.IsNotExist(err) {
+		os.Mkdir(PathToDir, 0o700)
 	}
-}
 
-// Almost the same as the above, but this one is for single test instead of collection of tests
-func SetupTest(tb testing.TB) func(tb testing.TB) {
-	log.Println("setup test")
+	LoadBuckets()
+	bucket_struct.LoadIDs(StorageDir)
 
 	return func(tb testing.TB) {
-		log.Println("teardown test")
+		os.RemoveAll(StorageDir)
 	}
 }
