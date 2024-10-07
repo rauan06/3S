@@ -1,7 +1,6 @@
 package test
 
 import (
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,7 +8,8 @@ import (
 )
 
 func TestPUTWithoutSession(t *testing.T) {
-	log.SetOutput(&nullWriter{})
+	teardownSuite := SetupSuite(t)
+	defer teardownSuite(t)
 
 	tests := []struct {
 		name         string
@@ -61,6 +61,8 @@ func TestPUTWithoutSession(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			teardownSuite := SetupSuite(t)
+			defer teardownSuite(t)
 			req, err := http.NewRequest("PUT", tt.requestURL, nil)
 			if err != nil {
 				t.Fatal(err)
