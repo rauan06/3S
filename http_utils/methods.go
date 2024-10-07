@@ -20,7 +20,16 @@ func PUT(w http.ResponseWriter, r *http.Request) {
 	bucketName := strings.SplitAfter(r.URL.Path[1:], "/")[0]
 	token := r.URL.Query().Get("session_id")
 
+	if SessionUser == nil && token == "" {
+		ForbiddenRequest(w, r)
+		return
+	}
+
 	Login(token)
+	if err := SaveUsersToXMLFile(); err != nil {
+		InternalServerError(w, r)
+		return
+	}
 
 	if !CheckRegex(bucketName) {
 		BadRequest(w, r)
@@ -38,11 +47,6 @@ func PUT(w http.ResponseWriter, r *http.Request) {
 	AllBuckets = append(AllBuckets, newBucket)
 
 	if err := SaveBucketsToXMLFile(); err != nil {
-		InternalServerError(w, r)
-		return
-	}
-
-	if err := SaveUsersToXMLFile(); err != nil {
 		InternalServerError(w, r)
 		return
 	}
@@ -75,7 +79,10 @@ func GET(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Login(token)
-	SaveUsersToXMLFile()
+	if err := SaveUsersToXMLFile(); err != nil {
+		InternalServerError(w, r)
+		return
+	}
 
 	if len(bucketName) == 0 {
 		result, err := NestForXML(nil)
@@ -107,7 +114,16 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 
 	token := r.URL.Query().Get("session_id")
 
+	if SessionUser == nil && token == "" {
+		ForbiddenRequest(w, r)
+		return
+	}
+
 	Login(token)
+	if err := SaveUsersToXMLFile(); err != nil {
+		InternalServerError(w, r)
+		return
+	}
 
 	// TODO: Object deletion
 	// var objectName string
