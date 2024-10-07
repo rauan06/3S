@@ -27,6 +27,11 @@ func BadRequest(w http.ResponseWriter, r *http.Request) {
 	writeHeaderResponse("400 Bad Request", r)
 }
 
+func BadRequestWithoutXML(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusBadRequest)
+	writeHeaderResponse("400 Bad Request", r)
+}
+
 func ConflictRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusConflict)
 	writeXML(w, "409 Conflict", http.StatusConflict)

@@ -25,7 +25,7 @@ func NestForXML(bucket *Bucket) (*ListAllMyAllBucketsResult, error) {
 	}
 
 	for _, b := range bucketsToProcess {
-		if b.SessionID == SessionUser.UserID {
+		if b.SessionID == SessionUser.Username {
 			tempBuckets = append(tempBuckets, b)
 		}
 	}
@@ -54,8 +54,8 @@ func CheckRegex(test string) bool {
 	return true
 }
 
-func LoadBuckets(pathToDir string) {
-	buckets, err := os.ReadFile(pathToDir + "/buckets.xml")
+func LoadBuckets() {
+	buckets, err := os.ReadFile(StorageDir + "/buckets.xml")
 	if err != nil {
 		log.Printf("Error reading buckets.xml: %v", err)
 		return
@@ -69,7 +69,7 @@ func LoadBuckets(pathToDir string) {
 		AllBuckets = append(AllBuckets, tempBuckets.List...)
 	}
 
-	users, err := os.ReadFile(pathToDir + "/users.xml")
+	users, err := os.ReadFile(StorageDir + "/users.xml")
 	if err != nil {
 		log.Printf("Error reading users.xml: %v", err)
 		return

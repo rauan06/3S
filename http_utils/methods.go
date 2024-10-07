@@ -5,27 +5,27 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"regexp"
 	"strings"
 
 	. "triples/bucket_struct"
 )
 
-var (
-	usernameRegex = regexp.MustCompile("^[a-zA-Z0-9._-]{3,20}$")
-	passRegex     = regexp.MustCompile(`^[A-Za-z\d]{8,}$`)
-)
-
 func PUT(w http.ResponseWriter, r *http.Request) {
-	bucketName := strings.SplitAfter(r.URL.Path[1:], "/")[0]
+	bucketName := strings.SplitAfterN(r.URL.Path[1:], "/", 2)[0]
 	token := r.URL.Query().Get("session_id")
 
 	if SessionUser == nil && token == "" {
-		ForbiddenRequest(w, r)
-		return
+		SessionUser = NewUser("", StorageDir)
+		AllUsers = append(AllUsers, SessionUser)
+	} else {
+		if err := Login(token); err != nil {
+			message := fmt.Sprintf("%v", err)
+			BadRequestWithoutXML(w, r)
+			writeXML(w, message, 400)
+			return
+		}
 	}
 
-	Login(token)
 	if err := SaveUsersToXMLFile(); err != nil {
 		InternalServerError(w, r)
 		return
@@ -43,7 +43,7 @@ func PUT(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	newBucket := NewBucket(bucketName, SessionUser.UserID, nil, PathToDir)
+	newBucket := NewBucket(bucketName, SessionUser.Username, nil, PathToDir)
 	AllBuckets = append(AllBuckets, newBucket)
 
 	if err := SaveBucketsToXMLFile(); err != nil {
@@ -57,13 +57,13 @@ func PUT(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionID := "Bucket session id: " + SessionUser.UserID
+	sessionID := "Bucket session id: " + SessionUser.Username
 	respondWithXML(w, r, &Response{Code: 200, Messege: sessionID})
 	return
 }
 
 func GET(w http.ResponseWriter, r *http.Request) {
-	pathParts := strings.SplitAfter(r.URL.Path[1:], "/")
+	pathParts := strings.SplitAfterN(r.URL.Path[1:], "/", 2)
 	bucketName := pathParts[0]
 	var objectName string
 
@@ -109,7 +109,7 @@ func GET(w http.ResponseWriter, r *http.Request) {
 }
 
 func DELETE(w http.ResponseWriter, r *http.Request) {
-	pathParts := strings.SplitAfter(r.URL.Path[1:], "/")
+	pathParts := strings.SplitAfterN(r.URL.Path[1:], "/", 2)
 	bucketName := pathParts[0]
 
 	token := r.URL.Query().Get("session_id")
@@ -145,7 +145,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if bucket.SessionID != SessionUser.UserID {
+			if bucket.SessionID != SessionUser.Username {
 				ForbiddenRequestTokenInvalid(w, r)
 				return
 			} else {

@@ -1,29 +1,46 @@
 package http_utils
 
-import . "triples/bucket_struct"
+import (
+	"fmt"
+	"regexp"
+
+	. "triples/bucket_struct"
+)
+
+var usernameRegex = regexp.MustCompile("^[a-zA-Z0-9._-]{3,20}$")
 
 func Logout() {
 	SessionUser = nil
 }
 
-func Login(token string) {
+func Login(token string) error {
+	fmt.Println(StorageDir)
 	if SessionUser != nil && token == "" {
-		return
+		return nil
 	}
 
-	var tempUser *User
+	if len(token) < 3 {
+		return fmt.Errorf("Invalid token, token should be at least 3 characters long")
+	}
+
+	if len(token) > 63 {
+		return fmt.Errorf("Invalid token, token cannot be more than 63 characters long")
+	}
+
+	if !CheckRegex(token) {
+		return fmt.Errorf("Token may have only lowercase letters, numbers, hyphens, and periods")
+	}
+
 	for _, user := range AllUsers {
-		if user.UserID == token {
-			tempUser = user
-			break
+		if user.Username == token {
+			SessionUser = user
+			return nil
 		}
 	}
 
-	if tempUser == nil && token != "" {
-		tempUser = &User{UserID: token, Username: "cookie"}
-	}
-
+	tempUser := NewUser(token, StorageDir)
 	AllUsers = append(AllUsers, tempUser)
-
 	SessionUser = tempUser
+
+	return nil
 }

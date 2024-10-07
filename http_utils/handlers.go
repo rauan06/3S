@@ -16,6 +16,7 @@ var (
 	AllUsers             []*User
 	SessionUser          *User
 	PathToDir            string
+	StorageDir           string
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {

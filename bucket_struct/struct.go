@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
 	"triples/utils"
 )
 
@@ -25,7 +26,7 @@ type ListAllMyAllBucketsResult struct {
 }
 
 type User struct {
-	UserID   string `xml:"UserID"`
+	UserID   int    `xml:"UserID"`
 	Username string `xml:"Username"`
 }
 
@@ -71,19 +72,21 @@ func NewBucket(name string, userID string, data [][]byte, pathToDir string) *Buc
 	}
 }
 
-func NewUser(username, pathToDir string) *User {
+func NewUser(username, storageDir string) *User {
 	UserID++
 
-	SaveIDs(storagePath(pathToDir))
+	if username == "" {
+		username, _ = utils.GenerateToken(strconv.Itoa(UserID))
+	}
 
-	hashedUserId, _ := utils.GenerateToken(strconv.Itoa(UserID))
+	SaveIDs(storagePath(storageDir))
 
 	return &User{
-		UserID:   hashedUserId,
-		Username: username + strconv.Itoa(UserID),
+		UserID:   UserID,
+		Username: username,
 	}
 }
 
 func storagePath(path string) string {
-	return strings.SplitAfter(path, "/")[0]
+	return strings.SplitAfterN(path, "/", 2)[0]
 }
