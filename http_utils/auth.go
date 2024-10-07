@@ -21,8 +21,6 @@ func Login(token string) {
 
 	if tempUser == nil && token != "" {
 		tempUser = &User{UserID: token, Username: "cookie"}
-	} else {
-		tempUser = NewUser("cookie", PathToDir)
 	}
 
 	AllUsers = append(AllUsers, tempUser)

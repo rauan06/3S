@@ -22,7 +22,7 @@ func LoadIDs(pathToDir string) {
 	}
 }
 
-func SaveIDs() {
+func SaveIDs(storagePath string) {
 	idNode := &IDs{UserID: UserID, BucketId: BucketId}
 	data, err := xml.MarshalIndent(idNode, " ", " ")
 	if err != nil {
@@ -32,7 +32,7 @@ func SaveIDs() {
 
 	data = append([]byte(xml.Header), data...)
 
-	err = os.WriteFile("storage/id.xml", data, 0o600) // Use octal notation for permissions
+	err = os.WriteFile(storagePath+"/id.xml", data, 0o600) // Use octal notation for permissions
 	if err != nil {
 		log.Printf("error writing to file: %v\n", err)
 		return

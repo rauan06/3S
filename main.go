@@ -16,10 +16,14 @@ func main() {
 
 	port := flag.Int("port", 8091, "Port number")
 	dir := flag.String("dir", "buckets", "Path to the directory")
+	test := flag.Bool("test", false, "If server is for ")
 
 	flag.Parse()
 
 	storageDir := "storage"
+	if *test {
+		storageDir = "storage_test"
+	}
 	os.Mkdir(storageDir, 0o700)
 
 	PathToDir = storageDir + "/" + *dir

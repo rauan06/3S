@@ -69,17 +69,13 @@ func GET(w http.ResponseWriter, r *http.Request) {
 
 	token := r.URL.Query().Get("session_id")
 
-	Login(token)
-
-	if err := SaveUsersToXMLFile(); err != nil {
-		InternalServerError(w, r)
-		return
-	}
-
 	if SessionUser == nil && token == "" {
 		ForbiddenRequest(w, r)
 		return
 	}
+
+	Login(token)
+	SaveUsersToXMLFile()
 
 	if len(bucketName) == 0 {
 		result, err := NestForXML(nil)

@@ -2,6 +2,7 @@ package bucket_struct
 
 import (
 	"strconv"
+	"strings"
 	"time"
 	"triples/utils"
 )
@@ -55,7 +56,7 @@ func NewBucket(name string, userID string, data [][]byte, pathToDir string) *Buc
 	BucketId++
 
 	hashedBucketId, _ := utils.GenerateToken(strconv.Itoa(BucketId))
-	SaveIDs()
+	SaveIDs(storagePath(pathToDir))
 
 	return &Bucket{
 		BucketId:     hashedBucketId,
@@ -73,7 +74,7 @@ func NewBucket(name string, userID string, data [][]byte, pathToDir string) *Buc
 func NewUser(username, pathToDir string) *User {
 	UserID++
 
-	SaveIDs()
+	SaveIDs(storagePath(pathToDir))
 
 	hashedUserId, _ := utils.GenerateToken(strconv.Itoa(UserID))
 
@@ -81,4 +82,8 @@ func NewUser(username, pathToDir string) *User {
 		UserID:   hashedUserId,
 		Username: username + strconv.Itoa(UserID),
 	}
+}
+
+func storagePath(path string) string {
+	return strings.SplitAfter(path, "/")[0]
 }
