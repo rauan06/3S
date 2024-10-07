@@ -1,3 +1,22 @@
-buckets/
+# Ignore the triples executable
 storage/
 triples
+
+# Ignore Go build artifacts
+*.exe
+*.test
+*.out
+
+# Ignore binaries and temporary files
+*.o
+*.a
+*.so
+*.dSYM
+
+# Ignore vendor directory
+/vendor/
+
+# Ignore IDE and editor specific files
+*.idea/
+*.vs/
+*.swp
