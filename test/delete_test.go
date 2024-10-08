@@ -25,7 +25,7 @@ func TestDELETE(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
-				"  <Message>403 Forbidden</Message>\n" +
+				"  <Message>You don&#39;t have eniughrights to access this bucket</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusForbidden,
 		},
@@ -35,7 +35,7 @@ func TestDELETE(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
-				"  <Message>403 Forbidden</Message>\n" +
+				"  <Message>You don&#39;t have eniughrights to access this bucket</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusForbidden,
 		},
@@ -45,7 +45,7 @@ func TestDELETE(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
-				"  <Message>403 Forbidden</Message>\n" +
+				"  <Message>You don&#39;t have eniughrights to access this bucket</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusForbidden,
 		},
@@ -55,7 +55,7 @@ func TestDELETE(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
-				"  <Message>403 Forbidden</Message>\n" +
+				"  <Message>You don&#39;t have eniughrights to access this bucket</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusForbidden,
 		},
@@ -104,7 +104,7 @@ func TestDELETE_withSession(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>400</Code>\n" +
-				"  <Message>400 Bad Request</Message>\n" +
+				"  <Message>Incorrect bucket name</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusBadRequest,
 		},

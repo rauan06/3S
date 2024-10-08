@@ -21,9 +21,9 @@ const (
 	White   = "\033[97m"
 )
 
-func BadRequest(w http.ResponseWriter, r *http.Request) {
+func BadRequest(w http.ResponseWriter, r *http.Request, msg string) {
 	w.WriteHeader(http.StatusBadRequest)
-	writeXML(w, "400 Bad Request", http.StatusBadRequest)
+	writeXML(w, msg, http.StatusBadRequest)
 	writeHeaderResponse("400 Bad Request", r)
 }
 
@@ -32,15 +32,15 @@ func BadRequestWithoutXML(w http.ResponseWriter, r *http.Request) {
 	writeHeaderResponse("400 Bad Request", r)
 }
 
-func ConflictRequest(w http.ResponseWriter, r *http.Request) {
+func ConflictRequest(w http.ResponseWriter, r *http.Request, msg string) {
 	w.WriteHeader(http.StatusConflict)
-	writeXML(w, "409 Conflict", http.StatusConflict)
+	writeXML(w, msg, http.StatusConflict)
 	writeHeaderResponse("409 Conflict", r)
 }
 
 func ForbiddenRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusForbidden)
-	writeXML(w, "403 Forbidden", http.StatusForbidden)
+	writeXML(w, "You don't have eniughrights to access this bucket", http.StatusForbidden)
 	writeHeaderResponse("403 Forbidden", r)
 }
 
@@ -52,7 +52,7 @@ func ForbiddenRequestTokenInvalid(w http.ResponseWriter, r *http.Request) {
 
 func NoContentRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
-	writeXML(w, "204 No Content", http.StatusNoContent)
+	writeXML(w, "Successful deletion", http.StatusNoContent)
 	writeHeaderResponse("204 No Content", r)
 }
 

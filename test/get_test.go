@@ -30,7 +30,7 @@ func TestGET(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
-				"  <Message>403 Forbidden</Message>\n" +
+				"  <Message>You don&#39;t have eniughrights to access this bucket</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusForbidden,
 		},
@@ -40,7 +40,7 @@ func TestGET(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
-				"  <Message>403 Forbidden</Message>\n" +
+				"  <Message>You don&#39;t have eniughrights to access this bucket</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusForbidden,
 		},
@@ -50,7 +50,7 @@ func TestGET(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
-				"  <Message>403 Forbidden</Message>\n" +
+				"  <Message>You don&#39;t have eniughrights to access this bucket</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusForbidden,
 		},
@@ -60,7 +60,7 @@ func TestGET(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
-				"  <Message>403 Forbidden</Message>\n" +
+				"  <Message>You don&#39;t have eniughrights to access this bucket</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusForbidden,
 		},
@@ -112,7 +112,7 @@ func TestGET_withSession(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
-				"  <Message>403 Forbidden</Message>\n" +
+				"  <Message>You don&#39;t have eniughrights to access this bucket</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusOK,
 		},
@@ -122,7 +122,7 @@ func TestGET_withSession(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
-				"  <Message>403 Forbidden</Message>\n" +
+				"  <Message>You don&#39;t have eniughrights to access this bucket</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusOK,
 		},
@@ -132,7 +132,7 @@ func TestGET_withSession(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
-				"  <Message>403 Forbidden</Message>\n" +
+				"  <Message>You don&#39;t have eniughrights to access this bucket</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusOK,
 		},

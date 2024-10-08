@@ -11,7 +11,14 @@ import (
 )
 
 func PUT(w http.ResponseWriter, r *http.Request) {
-	bucketName := strings.SplitAfterN(r.URL.Path[1:], "/", 2)[0]
+	pathParts := strings.SplitAfterN(r.URL.Path[1:], "/", 2)
+	bucketName := pathParts[0]
+	// var objectName string
+
+	// if len(pathParts) > 1 {
+	// 	objectName = pathParts[1]
+	// }
+
 	token := r.URL.Query().Get("session_id")
 
 	if SessionUser == nil && token == "" {
@@ -32,13 +39,13 @@ func PUT(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !CheckRegex(bucketName) {
-		BadRequest(w, r)
+		BadRequest(w, r, "Incorrect bucket name")
 		return
 	}
 
 	for _, bucket := range AllBuckets {
 		if bucket.Name == bucketName {
-			ConflictRequest(w, r)
+			ConflictRequest(w, r, "Bucket name already exists")
 			return
 		}
 	}
@@ -53,7 +60,7 @@ func PUT(w http.ResponseWriter, r *http.Request) {
 
 	path := PathToDir + "/" + bucketName
 	if err := os.Mkdir(path, 0o700); err != nil {
-		ConflictRequest(w, r)
+		ConflictRequest(w, r, "Bucket name already exists")
 		return
 	}
 
@@ -133,7 +140,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	if !CheckRegex(bucketName) {
-		BadRequest(w, r)
+		BadRequest(w, r, "Incorrect bucket name")
 		return
 	}
 
@@ -141,7 +148,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 	for i, bucket := range AllBuckets {
 		if bucketName == bucket.Name {
 			if len(bucket.Data) != 0 {
-				ConflictRequest(w, r)
+				ConflictRequest(w, r, "Non-empty bucket")
 				return
 			}
 
@@ -173,7 +180,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 
 func handleBucketRequest(w http.ResponseWriter, r *http.Request, bucketName string) {
 	if !CheckRegex(bucketName) {
-		BadRequest(w, r)
+		BadRequest(w, r, "Incorrect bucket name")
 		return
 	}
 

@@ -91,6 +91,7 @@ func NewUser(username, storageDir string, AllUsers []*User) *User {
 		for NotUnique(AllUsers, username) {
 			UserID++
 		}
+		username = utils.MdHashing(strconv.Itoa(UserID))
 	}
 
 	SaveIDs(storagePath(storageDir))

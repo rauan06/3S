@@ -24,7 +24,7 @@ func TestPUT(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>400</Code>\n" +
-				"  <Message>400 Bad Request</Message>\n" +
+				"  <Message>Incorrect bucket name</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusBadRequest,
 		},
@@ -34,7 +34,7 @@ func TestPUT(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>400</Code>\n" +
-				"  <Message>400 Bad Request</Message>\n" +
+				"  <Message>Incorrect bucket name</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusBadRequest,
 		},
@@ -44,7 +44,7 @@ func TestPUT(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>400</Code>\n" +
-				"  <Message>400 Bad Request</Message>\n" +
+				"  <Message>Incorrect bucket name</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusBadRequest,
 		},
@@ -64,7 +64,7 @@ func TestPUT(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>409</Code>\n" +
-				"  <Message>409 Conflict</Message>\n" +
+				"  <Message>Bucket name already exists</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusConflict,
 		},
@@ -77,6 +77,46 @@ func TestPUT(t *testing.T) {
 				"  <Message>Bucket session id: [a-z0-9]+</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusOK,
+		},
+		{
+			name:       "PUT request without session 7",
+			requestURL: "/192.168.0.1",
+			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<Response>\n" +
+				"  <Code>400</Code>\n" +
+				"  <Message>Incorrect bucket name</Message>\n" +
+				"</Response>\n",
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name:       "PUT request without session 8",
+			requestURL: "/192..rauan",
+			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<Response>\n" +
+				"  <Code>400</Code>\n" +
+				"  <Message>Incorrect bucket name</Message>\n" +
+				"</Response>\n",
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name:       "PUT request without session 9",
+			requestURL: "/707560180ca618f34faacf97f346bae6a59eef815e47177dfa6c8d2233696c40a",
+			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<Response>\n" +
+				"  <Code>400</Code>\n" +
+				"  <Message>Incorrect bucket name</Message>\n" +
+				"</Response>\n",
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name:       "PUT request without session 10",
+			requestURL: "/77",
+			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<Response>\n" +
+				"  <Code>400</Code>\n" +
+				"  <Message>Incorrect bucket name</Message>\n" +
+				"</Response>\n",
+			expectedCode: http.StatusBadRequest,
 		},
 	}
 
