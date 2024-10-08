@@ -26,7 +26,6 @@ type Bucket struct {
 	LastModified time.Time `xml:"LastModifiedDate"`
 	LifeCycle    time.Time `xml:"ExpirationDate"`
 	Status       string    `xml:"Status"`
-	Data         [][]byte  `xml:"Data"`
 }
 
 type ListAllMyAllBucketsResult struct {

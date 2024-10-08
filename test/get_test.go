@@ -128,7 +128,7 @@ func TestGET_withSession(t *testing.T) {
 		},
 		{
 			name:       "Get request 4",
-			requestURL: "/123?session_id=123",
+			requestURL: "/123?session_id=rauan",
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
