@@ -16,7 +16,11 @@ type SessionBucket struct {
 	LastModified time.Time `xml:"LastModifiedDate"`
 	LifeCycle    time.Time `xml:"ExpirationDate"`
 	Status       string    `xml:"Status"`
-	Data         [][]byte  `xml:"Data"`
+	Data         []*File   `xml:"Data"`
+}
+
+type File struct {
+	Path string
 }
 
 type Bucket struct {
@@ -65,7 +69,7 @@ var (
 	UserID   = 0
 )
 
-func NewBucket(name string, userID string, data [][]byte, pathToDir string) *SessionBucket {
+func NewBucket(name string, userID string, data *File, pathToDir string) *SessionBucket {
 	BucketId++
 
 	hashedBucketId, _ := utils.GenerateToken(strconv.Itoa(BucketId))
@@ -80,7 +84,7 @@ func NewBucket(name string, userID string, data [][]byte, pathToDir string) *Ses
 		LastModified: time.Now(),
 		LifeCycle:    utils.Expiration(),
 		Status:       "active",
-		Data:         data,
+		Data:         []*File{data},
 	}
 }
 

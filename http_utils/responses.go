@@ -40,7 +40,7 @@ func ConflictRequest(w http.ResponseWriter, r *http.Request, msg string) {
 
 func ForbiddenRequest(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusForbidden)
-	writeXML(w, "You don't have eniughrights to access this bucket", http.StatusForbidden)
+	writeXML(w, "You dont have enough rights to access this bucket or object", http.StatusForbidden)
 	writeHeaderResponse("403 Forbidden", r)
 }
 

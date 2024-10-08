@@ -9,7 +9,6 @@ import (
 	. "triples/bucket_struct"
 )
 
-// TODO: Remove SessionID and Data from bucket's struct
 func NestForXML(bucket *SessionBucket) (*ListAllMyAllBucketsResult, error) {
 	if SessionUser == nil {
 		return nil, fmt.Errorf("Invalid token")
@@ -144,4 +143,23 @@ func SaveUsersToXMLFile() error {
 	}
 
 	return nil
+}
+
+func fileExtension(contentType string) (string, error) {
+	contentTypeMap := map[string]string{
+		"image/jpeg":      ".jpg",
+		"image/png":       ".png",
+		"image/gif":       ".gif",
+		"application/pdf": ".pdf",
+		"text/plain":      ".txt",
+		// Add more mappings as needed
+	}
+
+	extension, ok := contentTypeMap[contentType]
+
+	if !ok {
+		return "", fmt.Errorf("Unavailable content type: %s", extension)
+	}
+
+	return contentTypeMap[contentType], nil
 }

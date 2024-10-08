@@ -33,10 +33,10 @@ func TestPUT(t *testing.T) {
 			requestURL: "/asdasdas/asdasdsad/asd?session_id=123",
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
-				"  <Code>400</Code>\n" +
-				"  <Message>Incorrect bucket name</Message>\n" +
+				"  <Code>404</Code>\n" +
+				"  <Message>404 Not Found</Message>\n" +
 				"</Response>\n",
-			expectedCode: http.StatusBadRequest,
+			expectedCode: http.StatusNotFound,
 		},
 		{
 			name:       "PUT request without session 3",
