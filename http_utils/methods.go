@@ -58,7 +58,7 @@ func PUT(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sessionID := "Bucket session id: " + SessionUser.Username
-	respondWithXML(w, r, &Response{Code: 200, Messege: sessionID})
+	respondWithXML(w, r, &Response{Code: 200, Message: sessionID})
 	return
 }
 
@@ -195,7 +195,15 @@ func handleBucketRequest(w http.ResponseWriter, r *http.Request, bucketName stri
 
 func respondWithXML(w http.ResponseWriter, r *http.Request, result interface{}) {
 	OkRequestWithHeaders(w, r)
-	out, _ := xml.MarshalIndent(result, " ", "  ")
+	w.Header().Set("Content-Type", "application/xml")
+
+	out, err := xml.MarshalIndent(result, "", "  ") // No prefix for indentation
+	if err != nil {
+		http.Error(w, "Failed to marshal XML", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, xml.Header)
 	fmt.Fprintln(w, string(out))
 }

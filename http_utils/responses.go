@@ -115,7 +115,7 @@ func writeHeaderResponse(code string, r *http.Request) {
 }
 
 func writeXML(w http.ResponseWriter, msg string, code int) {
-	nf := &Response{Code: code, Messege: msg}
+	nf := &Response{Code: code, Message: msg}
 	out, err := xml.MarshalIndent(nf, "", "  ")
 	if err != nil {
 		log.Printf("error marshalling XML: %v", err)

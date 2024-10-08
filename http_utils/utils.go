@@ -94,7 +94,7 @@ func SaveBucketsToXMLFile() error {
 
 	output = append([]byte(xml.Header), output...)
 
-	err = os.WriteFile("storage/buckets.xml", output, 0o644)
+	err = os.WriteFile(StorageDir+"buckets.xml", output, 0o644)
 	if err != nil {
 		return fmt.Errorf("error writing to file: %w", err)
 	}
@@ -112,7 +112,7 @@ func SaveUsersToXMLFile() error {
 
 	output = append([]byte(xml.Header), output...)
 
-	err = os.WriteFile("storage/users.xml", output, 0o644)
+	err = os.WriteFile(StorageDir+"users.xml", output, 0o644)
 	if err != nil {
 		return fmt.Errorf("error writing to file: %w", err)
 	}

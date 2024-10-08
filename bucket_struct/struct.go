@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
 	"triples/utils"
 )
 
@@ -45,7 +44,7 @@ type IDs struct {
 
 type Response struct {
 	Code    int
-	Messege string
+	Message string
 }
 
 var (

@@ -14,7 +14,6 @@ func Logout() {
 }
 
 func Login(token string) error {
-	fmt.Println(StorageDir)
 	if SessionUser != nil && token == "" {
 		return nil
 	}
