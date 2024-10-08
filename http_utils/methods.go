@@ -226,11 +226,9 @@ func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectN
 				bucket.Data = append(bucket.Data, &File{Path: "/" + objectName + extension})
 			}
 
-			go func() {
-				if err := SaveBucketsToXMLFile(); err != nil {
-					fmt.Println("Error saving buckets:", err)
-				}
-			}()
+			if err := SaveBucketsToXMLFile(); err != nil {
+				fmt.Println("Error saving buckets:", err)
+			}
 
 			OkRequestWithHeaders(w, r)
 			return

@@ -152,7 +152,6 @@ func fileExtension(contentType string) (string, error) {
 		"image/gif":       ".gif",
 		"application/pdf": ".pdf",
 		"text/plain":      ".txt",
-		// Add more mappings as needed
 	}
 
 	extension, ok := contentTypeMap[contentType]
