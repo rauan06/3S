@@ -7,7 +7,7 @@ import (
 	"triples/utils"
 )
 
-type Bucket struct {
+type SessionBucket struct {
 	BucketId     string    `xml:"BucketID"`
 	SessionID    string    `xml:"SessionID"`
 	Name         string    `xml:"BucketName"`
@@ -16,7 +16,17 @@ type Bucket struct {
 	LastModified time.Time `xml:"LastModifiedDate"`
 	LifeCycle    time.Time `xml:"ExpirationDate"`
 	Status       string    `xml:"Status"`
-	Data         [][]byte  `xml:"-"`
+	Data         [][]byte  `xml:"Data"`
+}
+
+type Bucket struct {
+	Name         string    `xml:"BucketName"`
+	PathToBucket string    `xml:"Path"`
+	CreateDate   time.Time `xml:"CreationDate"`
+	LastModified time.Time `xml:"LastModifiedDate"`
+	LifeCycle    time.Time `xml:"ExpirationDate"`
+	Status       string    `xml:"Status"`
+	Data         [][]byte  `xml:"Data"`
 }
 
 type ListAllMyAllBucketsResult struct {
@@ -37,6 +47,10 @@ type Buckets struct {
 	List []*Bucket `xml:"Bucket"`
 }
 
+type SessionBuckets struct {
+	List []*SessionBucket
+}
+
 type IDs struct {
 	UserID   int
 	BucketId int
@@ -52,13 +66,13 @@ var (
 	UserID   = 0
 )
 
-func NewBucket(name string, userID string, data [][]byte, pathToDir string) *Bucket {
+func NewBucket(name string, userID string, data [][]byte, pathToDir string) *SessionBucket {
 	BucketId++
 
 	hashedBucketId, _ := utils.GenerateToken(strconv.Itoa(BucketId))
 	SaveIDs(storagePath(pathToDir))
 
-	return &Bucket{
+	return &SessionBucket{
 		BucketId:     hashedBucketId,
 		SessionID:    userID,
 		PathToBucket: pathToDir + "/" + name,

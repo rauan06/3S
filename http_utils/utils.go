@@ -10,8 +10,8 @@ import (
 )
 
 // TODO: Remove SessionID and Data from bucket's struct
-func NestForXML(bucket *Bucket) (*ListAllMyAllBucketsResult, error) {
-	var tempBuckets []*Bucket
+func NestForXML(bucket *SessionBucket) (*ListAllMyAllBucketsResult, error) {
+	fmt.Println(AllBuckets)
 
 	if SessionUser == nil {
 		return nil, fmt.Errorf("Invalid token")
@@ -19,19 +19,31 @@ func NestForXML(bucket *Bucket) (*ListAllMyAllBucketsResult, error) {
 
 	var bucketsToProcess []*Bucket
 	if bucket != nil {
-		bucketsToProcess = []*Bucket{bucket}
+		bucketsToProcess = append(bucketsToProcess, &Bucket{
+			Name:         bucket.Name,
+			PathToBucket: bucket.PathToBucket,
+			CreateDate:   bucket.CreateDate,
+			LastModified: bucket.LastModified,
+			LifeCycle:    bucket.LifeCycle,
+			Status:       bucket.Status,
+		})
 	} else {
-		bucketsToProcess = AllBuckets
-	}
-
-	for _, b := range bucketsToProcess {
-		if b.SessionID == SessionUser.Username {
-			tempBuckets = append(tempBuckets, b)
+		for _, bucket := range AllBuckets {
+			if bucket.SessionID == SessionUser.Username {
+				bucketsToProcess = append(bucketsToProcess, &Bucket{
+					Name:         bucket.Name,
+					PathToBucket: bucket.PathToBucket,
+					CreateDate:   bucket.CreateDate,
+					LastModified: bucket.LastModified,
+					LifeCycle:    bucket.LifeCycle,
+					Status:       bucket.Status,
+				})
+			}
 		}
 	}
 
 	result := &ListAllMyAllBucketsResult{
-		Bucket: tempBuckets,
+		Bucket: bucketsToProcess,
 		Owner:  SessionUser,
 	}
 
@@ -54,6 +66,22 @@ func CheckRegex(test string) bool {
 	return true
 }
 
+func CheckRegexToken(test string) bool {
+	if IpAddressRegex.MatchString(test) {
+		return false
+	}
+
+	if m := ValidTokenRegex.FindStringSubmatch(test); m == nil {
+		return false
+	}
+
+	if DoubleDashPeriod.MatchString(test) {
+		return false
+	}
+
+	return true
+}
+
 func LoadBuckets() {
 	buckets, err := os.ReadFile(StorageDir + "/buckets.xml")
 	if err != nil {
@@ -61,7 +89,7 @@ func LoadBuckets() {
 		return
 	}
 
-	tempBuckets := &Buckets{}
+	tempBuckets := &SessionBuckets{}
 	if len(buckets) != 0 {
 		if err := xml.Unmarshal(buckets, tempBuckets); err != nil {
 			log.Fatalf("Error unmarshalling buckets.xml: %v", err)
@@ -85,7 +113,7 @@ func LoadBuckets() {
 }
 
 func SaveBucketsToXMLFile() error {
-	tempBuckets := &Buckets{List: AllBuckets}
+	tempBuckets := &SessionBuckets{List: AllBuckets}
 
 	output, err := xml.MarshalIndent(tempBuckets, "", "  ")
 	if err != nil {

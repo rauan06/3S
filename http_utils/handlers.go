@@ -10,9 +10,10 @@ import (
 // Global variables
 var (
 	ValidBucketNameRegex = regexp.MustCompile("^([a-z0-9.-]{3,63})$")
+	ValidTokenRegex      = regexp.MustCompile("^([a-z0-9.-]{3,64})$")
 	IpAddressRegex       = regexp.MustCompile(`^(\d{1,3}\.){3}\d{1,3}$`)
 	DoubleDashPeriod     = regexp.MustCompile(`[-]{2}|\.\.`)
-	AllBuckets           []*Bucket
+	AllBuckets           []*SessionBucket
 	AllUsers             []*User
 	SessionUser          *User
 	PathToDir            string

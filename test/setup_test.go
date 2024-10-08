@@ -69,6 +69,6 @@ func SetupWithSession(tb testing.TB) func(tb testing.TB) {
 	return func(tb testing.TB) {
 		StorageDir = "storage_test_session/"
 		Logout()
-		// os.RemoveAll(StorageDir)
+		os.RemoveAll(StorageDir)
 	}
 }

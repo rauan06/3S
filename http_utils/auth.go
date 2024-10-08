@@ -21,11 +21,11 @@ func Login(token string) error {
 		return fmt.Errorf("Invalid token, token should be at least 3 characters long")
 	}
 
-	if len(token) > 63 {
-		return fmt.Errorf("Invalid token, token cannot be more than 63 characters long")
+	if len(token) > 64 {
+		return fmt.Errorf("Invalid token, token cannot be more than 64 characters long")
 	}
 
-	if !CheckRegex(token) {
+	if !CheckRegexToken(token) {
 		return fmt.Errorf("Token may have only lowercase letters, numbers, hyphens, and periods")
 	}
 
