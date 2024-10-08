@@ -50,7 +50,7 @@ func SetupWithSession(tb testing.TB) func(tb testing.TB) {
 
 	bucket_struct.LoadIDs(StorageDir)
 
-	SessionUser = bucket_struct.NewUser("", StorageDir)
+	SessionUser = bucket_struct.NewUser("", StorageDir, AllUsers)
 
 	requests := []*http.Request{
 		httptest.NewRequest(http.MethodPut, "/123?session_id=rauan", nil),

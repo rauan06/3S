@@ -11,8 +11,6 @@ import (
 
 // TODO: Remove SessionID and Data from bucket's struct
 func NestForXML(bucket *SessionBucket) (*ListAllMyAllBucketsResult, error) {
-	fmt.Println(AllBuckets)
-
 	if SessionUser == nil {
 		return nil, fmt.Errorf("Invalid token")
 	}

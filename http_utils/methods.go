@@ -15,7 +15,7 @@ func PUT(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get("session_id")
 
 	if SessionUser == nil && token == "" {
-		SessionUser = NewUser("", StorageDir)
+		SessionUser = NewUser("", StorageDir, AllUsers)
 		AllUsers = append(AllUsers, SessionUser)
 	} else {
 		if err := Login(token); err != nil {

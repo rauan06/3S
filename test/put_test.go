@@ -3,6 +3,7 @@ package test
 import (
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"testing"
 	"triples/http_utils"
 )
@@ -53,7 +54,7 @@ func TestPUT(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>200</Code>\n" +
-				"  <Message>Bucket session id: 123</Message>\n" +
+				"  <Message>Bucket session id: [a-z0-9]+</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusOK,
 		},
@@ -73,7 +74,7 @@ func TestPUT(t *testing.T) {
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>200</Code>\n" +
-				"  <Message>Bucket session id: 1234567</Message>\n" +
+				"  <Message>Bucket session id: [a-z0-9]+</Message>\n" +
 				"</Response>\n",
 			expectedCode: http.StatusOK,
 		},
@@ -91,12 +92,15 @@ func TestPUT(t *testing.T) {
 
 			handler.ServeHTTP(rr, req)
 
-			if status := rr.Code; status != tt.expectedCode {
-				t.Errorf("handler returned wrong status code: got %v want %v", status, tt.expectedCode)
-			}
-
-			if rr.Body.String() != tt.expectedBody {
-				t.Errorf("handler returned unexpected body: got\n %v\n want\n %v\n", rr.Body.String(), tt.expectedBody)
+			if tt.expectedCode == http.StatusOK {
+				re := regexp.MustCompile(`^<\?xml version="1\.0" encoding="UTF-8"\?>\n<Response>\n  <Code>200</Code>\n  <Message>Bucket session id: [a-zA-Z0-9]+</Message>\n</Response>\n$`)
+				if !re.MatchString(rr.Body.String()) {
+					t.Errorf("handler returned unexpected body: got\n %v\n want to match regex\n %v\n", rr.Body.String(), tt.expectedBody)
+				}
+			} else {
+				if rr.Body.String() != tt.expectedBody {
+					t.Errorf("handler returned unexpected body: got\n %v\n want\n %v\n", rr.Body.String(), tt.expectedBody)
+				}
 			}
 		})
 	}

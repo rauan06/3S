@@ -84,11 +84,13 @@ func NewBucket(name string, userID string, data [][]byte, pathToDir string) *Ses
 	}
 }
 
-func NewUser(username, storageDir string) *User {
+func NewUser(username, storageDir string, AllUsers []*User) *User {
 	UserID++
 
 	if username == "" {
-		username, _ = utils.GenerateToken(strconv.Itoa(UserID))
+		for NotUnique(AllUsers, username) {
+			UserID++
+		}
 	}
 
 	SaveIDs(storagePath(storageDir))
@@ -101,4 +103,13 @@ func NewUser(username, storageDir string) *User {
 
 func storagePath(path string) string {
 	return strings.SplitAfterN(path, "/", 2)[0]
+}
+
+func NotUnique(AllUsers []*User, token string) bool {
+	for _, user := range AllUsers {
+		if user.Username == token {
+			return true
+		}
+	}
+	return false
 }

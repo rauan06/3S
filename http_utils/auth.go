@@ -36,7 +36,7 @@ func Login(token string) error {
 		}
 	}
 
-	tempUser := NewUser(token, StorageDir)
+	tempUser := NewUser(token, StorageDir, AllUsers)
 	AllUsers = append(AllUsers, tempUser)
 	SessionUser = tempUser
 
