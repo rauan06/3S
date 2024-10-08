@@ -53,7 +53,6 @@ func GET(w http.ResponseWriter, r *http.Request) {
 	if len(pathParts) > 1 {
 		objectName = pathParts[1]
 	}
-
 	token := r.URL.Query().Get("session_id")
 
 	if SessionUser == nil && token == "" {
@@ -73,12 +72,44 @@ func GET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !CheckRegex(bucketName) {
+		BadRequest(w, r, "Incorrect bucket name")
+		return
+	}
+
 	switch len(pathParts) {
 	case 1:
 		handleBucketRequest(w, r, bucketName)
 	case 2:
-		// Handle object retrieval if needed
-		fmt.Println(objectName)
+		for _, bucket := range AllBuckets {
+			if bucket.Name == bucketName {
+				for _, path := range bucket.Data {
+					if path.Path == "/"+objectName {
+						file, err := os.Open(bucket.PathToBucket + path.Path)
+						if err != nil {
+							http.Error(w, "File not found", http.StatusNotFound)
+							return
+						}
+						defer file.Close()
+						fileInfo, err := file.Stat()
+						if err != nil {
+							http.Error(w, "Could not retrieve file info", http.StatusInternalServerError)
+							return
+						}
+
+						// Serve the content with proper handling of range requests and caching
+						http.ServeContent(w, r, fileInfo.Name(), fileInfo.ModTime(), file)
+						return
+					}
+				}
+
+				NotFoundRequest(w, r)
+				return
+			}
+		}
+
+		NotFoundRequest(w, r)
+		return
 	}
 }
 
@@ -130,11 +161,6 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleBucketRequest(w http.ResponseWriter, r *http.Request, bucketName string) {
-	if !CheckRegex(bucketName) {
-		BadRequest(w, r, "Incorrect bucket name")
-		return
-	}
-
 	for _, bucket := range AllBuckets {
 		if bucket.Name == bucketName {
 			result, err := NestForXML(bucket)
