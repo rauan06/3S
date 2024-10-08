@@ -203,7 +203,6 @@ func respondWithXML(w http.ResponseWriter, r *http.Request, result interface{}) 
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, xml.Header)
 	fmt.Fprintln(w, string(out))
 }

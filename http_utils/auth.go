@@ -2,15 +2,14 @@ package http_utils
 
 import (
 	"fmt"
-	"regexp"
 
 	. "triples/bucket_struct"
 )
 
-var usernameRegex = regexp.MustCompile("^[a-zA-Z0-9._-]{3,20}$")
-
 func Logout() {
 	SessionUser = nil
+	AllBuckets = nil
+	AllUsers = nil
 }
 
 func Login(token string) error {

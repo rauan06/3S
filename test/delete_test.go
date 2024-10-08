@@ -99,7 +99,7 @@ func TestDELETE_withSession(t *testing.T) {
 		expectedCode int
 	}{
 		{
-			name:       "DELETE request without session 1",
+			name:       "DELETE request 1",
 			requestURL: "/",
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +

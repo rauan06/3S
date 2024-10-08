@@ -49,7 +49,7 @@ func TestPUT(t *testing.T) {
 		},
 		{
 			name:       "PUT request without session 4",
-			requestURL: "/123",
+			requestURL: "/123?session_id=123",
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>200</Code>\n" +
@@ -81,8 +81,6 @@ func TestPUT(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			teardownSuite := SetupSuite(t)
-			defer teardownSuite(t)
 			req, err := http.NewRequest("PUT", tt.requestURL, nil)
 			if err != nil {
 				t.Fatal(err)

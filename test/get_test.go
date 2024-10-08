@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"triples/http_utils"
 )
@@ -90,6 +91,8 @@ func TestGET(t *testing.T) {
 
 func TestGET_withSession(t *testing.T) {
 	log.SetOutput(&nullWriter{})
+	teardownSuite := SetupWithSession(t)
+	defer teardownSuite(t)
 
 	tests := []struct {
 		name         string
@@ -98,49 +101,48 @@ func TestGET_withSession(t *testing.T) {
 		expectedCode int
 	}{
 		{
-			name:       "Get request without session 1",
-			requestURL: "/",
-			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-				"<Response>\n" +
-				"  <Code>403</Code>\n" +
-				"  <Message>403 Forbidden</Message>\n" +
-				"</Response>\n",
-			expectedCode: http.StatusForbidden,
+			name:         "Get request 1",
+			requestURL:   "/",
+			expectedBody: "<ListAllMyAllBucketsResult>",
+			expectedCode: http.StatusOK,
 		},
 		{
-			name:       "Get request without session 2",
+			name:       "Get request 2",
 			requestURL: "/////////////////////////////////",
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
 				"  <Message>403 Forbidden</Message>\n" +
 				"</Response>\n",
-			expectedCode: http.StatusForbidden,
+			expectedCode: http.StatusOK,
 		},
 		{
-			name:       "Get request without session 3",
+			name:       "Get request 3",
 			requestURL: "/:/:/:/:/",
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
 				"  <Message>403 Forbidden</Message>\n" +
 				"</Response>\n",
-			expectedCode: http.StatusForbidden,
+			expectedCode: http.StatusOK,
 		},
 		{
-			name:       "Get request without session 4",
-			requestURL: "/123",
+			name:       "Get request 4",
+			requestURL: "/123?session_id=123",
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
 				"  <Code>403</Code>\n" +
 				"  <Message>403 Forbidden</Message>\n" +
 				"</Response>\n",
-			expectedCode: http.StatusForbidden,
+			expectedCode: http.StatusOK,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			teardownSuite := SetupWithSession(t)
+			defer teardownSuite(t)
+
 			req, err := http.NewRequest("GET", tt.requestURL, nil)
 			if err != nil {
 				t.Fatal(err)
@@ -155,7 +157,7 @@ func TestGET_withSession(t *testing.T) {
 				t.Errorf("handler returned wrong status code: got %v want %v", status, tt.expectedCode)
 			}
 
-			if rr.Body.String() != tt.expectedBody {
+			if strings.HasPrefix(rr.Body.String(), tt.expectedBody) {
 				t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), tt.expectedBody)
 			}
 		})

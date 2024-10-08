@@ -1,6 +1,7 @@
 # Ignore the triples executable
 storage/
 storage_test/
+storage_test_session/
 triples
 
 # Ignore Go build artifacts

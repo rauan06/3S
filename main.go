@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-
 	"triples/bucket_struct"
-	. "triples/http_utils"
 	"triples/utils"
+
+	. "triples/http_utils"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 	StorageDir = "storage/"
 	os.Mkdir(StorageDir, 0o700)
 
-	PathToDir = StorageDir + "/" + *dir
+	PathToDir = StorageDir + *dir
 	if _, err := os.Stat(PathToDir); os.IsNotExist(err) {
 		os.Mkdir(PathToDir, 0o700)
 	}
