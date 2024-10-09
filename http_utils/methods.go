@@ -293,19 +293,27 @@ func handleGetObjects(w http.ResponseWriter, r *http.Request, bucketName, object
 		if bucket.Name == bucketName {
 			for _, path := range bucket.Data {
 				if path.Name == objectName {
-					file, err := os.Open(bucket.PathToBucket + path.Path)
+					filePath := bucket.PathToBucket + path.Path // Update this to your actual path
+
+					// Open the image file
+					file, err := os.Open(filePath)
 					if err != nil {
 						http.Error(w, "File not found", http.StatusNotFound)
 						return
 					}
 					defer file.Close()
+
+					// Get file information
 					fileInfo, err := file.Stat()
 					if err != nil {
-						http.Error(w, "Could not retrieve file info", http.StatusInternalServerError)
+						http.Error(w, "Could not retrieve file info", http.StatusBadRequest)
 						return
 					}
 
-					// Serve the content with proper handling of range requests and caching
+					// Set the content type
+					w.Header().Set("Content-Type", "image/jpeg") // Adjust as necessary
+
+					// Serve the content
 					http.ServeContent(w, r, fileInfo.Name(), fileInfo.ModTime(), file)
 					return
 				}
