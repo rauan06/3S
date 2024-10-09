@@ -4,7 +4,9 @@ import (
 	"encoding/xml"
 	"fmt"
 	"log"
+	"mime"
 	"os"
+	"path/filepath"
 
 	. "triples/bucket_struct"
 )
@@ -161,4 +163,15 @@ func fileExtension(contentType string) (string, error) {
 	}
 
 	return contentTypeMap[contentType], nil
+}
+
+func getContentType(filePath string) string {
+	ext := filepath.Ext(filePath)
+
+	contentType := mime.TypeByExtension(ext)
+
+	if contentType == "" {
+		return "application/octet-stream"
+	}
+	return contentType
 }

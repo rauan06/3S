@@ -228,6 +228,11 @@ func handlePut(w http.ResponseWriter, r *http.Request, bucketName string) {
 }
 
 func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectName string) {
+	if !CheckRegex(objectName) {
+		BadRequest(w, r, "Invalid object name")
+		return
+	}
+
 	for _, bucket := range AllBuckets {
 		if bucket == nil {
 			continue // Skip nil buckets
@@ -260,6 +265,12 @@ func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectN
 				return
 			}
 
+			fi, err := file.Stat()
+			if err != nil {
+				BadRequest(w, r, "Error finding your file")
+				return
+			}
+
 			if bucket.Data == nil {
 				bucket.Data = []*File{}
 			}
@@ -272,7 +283,7 @@ func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectN
 			}
 
 			if _, exists := existingPaths["/"+objectName+extension]; !exists {
-				bucket.Data = append(bucket.Data, &File{Name: objectName, Path: "/" + objectName + extension})
+				bucket.Data = append(bucket.Data, &File{Name: objectName, Path: "/" + objectName + extension, SizeInBytes: fi.Size()})
 			}
 
 			bucket.LastModified = time.Now()
@@ -291,11 +302,18 @@ func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectN
 func handleGetObjects(w http.ResponseWriter, r *http.Request, bucketName, objectName string) {
 	for _, bucket := range AllBuckets {
 		if bucket.Name == bucketName {
+			if bucket.Data == nil {
+				continue
+			}
+
+			if len(bucket.Data) == 0 {
+				continue
+			}
+
 			for _, path := range bucket.Data {
 				if path.Name == objectName {
-					filePath := bucket.PathToBucket + path.Path // Update this to your actual path
+					filePath := bucket.PathToBucket + path.Path
 
-					// Open the image file
 					file, err := os.Open(filePath)
 					if err != nil {
 						http.Error(w, "File not found", http.StatusNotFound)
@@ -303,17 +321,15 @@ func handleGetObjects(w http.ResponseWriter, r *http.Request, bucketName, object
 					}
 					defer file.Close()
 
-					// Get file information
 					fileInfo, err := file.Stat()
 					if err != nil {
 						http.Error(w, "Could not retrieve file info", http.StatusBadRequest)
 						return
 					}
 
-					// Set the content type
-					w.Header().Set("Content-Type", "image/jpeg") // Adjust as necessary
+					w.Header().Set("Content-Type", getContentType(filePath))
+					w.Header().Set("Location", filePath)
 
-					// Serve the content
 					http.ServeContent(w, r, fileInfo.Name(), fileInfo.ModTime(), file)
 					return
 				}

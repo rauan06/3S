@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
 	"triples/utils"
 )
 
@@ -21,8 +20,9 @@ type SessionBucket struct {
 }
 
 type File struct {
-	Name string
-	Path string
+	Name        string
+	Path        string
+	SizeInBytes int64
 }
 
 type Bucket struct {
