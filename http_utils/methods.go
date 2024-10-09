@@ -113,7 +113,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 	case 1:
 		for i, bucket := range AllBuckets {
 			if bucket.Name == bucketName {
-				if bucket.Data != nil && len(bucket.Data) != 0 && bucket.Data[0] != nil {
+				if bucket.Data == nil || len(bucket.Data) != 0 {
 					ConflictRequest(w, r, "Non-empty bucket")
 					return
 				}
@@ -122,19 +122,31 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 					ForbiddenRequestTokenInvalid(w, r)
 					return
 				}
-				AllBuckets = append(AllBuckets[:i], AllBuckets[i+1:]...)
 
-				if err := os.RemoveAll(bucket.PathToBucket); err != nil {
-					InternalServerError(w, r)
+				if bucket.Status == "marked for deletion" {
+					AllBuckets = append(AllBuckets[:i], AllBuckets[i+1:]...)
+
+					if err := os.RemoveAll(bucket.PathToBucket); err != nil {
+						InternalServerError(w, r)
+						return
+					}
+
+					if err := SaveBucketsToXMLFile(); err != nil {
+						InternalServerError(w, r)
+						return
+					}
+					NoContentRequest(w, r)
+					return
+				} else {
+					bucket.Status = "marked for deletion"
+					if err := SaveBucketsToXMLFile(); err != nil {
+						InternalServerError(w, r)
+						return
+					}
+
+					OkRequest(w, r)
 					return
 				}
-
-				if err := SaveBucketsToXMLFile(); err != nil {
-					InternalServerError(w, r)
-					return
-				}
-				NoContentRequest(w, r)
-				return
 			}
 		}
 	case 2:
@@ -157,9 +169,6 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 
 						bucket.Data = append(bucket.Data[:i], bucket.Data[i+1:]...)
 
-						if bucket.Data == nil || (len(bucket.Data) == 1 && bucket.Data[0] == nil) {
-							bucket.Data = nil
-						}
 						if err := SaveBucketsToXMLFile(); err != nil {
 							InternalServerError(w, r)
 							return
@@ -181,6 +190,11 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 func handleBucketRequest(w http.ResponseWriter, r *http.Request, bucketName string) {
 	for _, bucket := range AllBuckets {
 		if bucket.Name == bucketName {
+			if bucket.Status == "marked for deletion" {
+				BadRequest(w, r, "This bucket is marked for deletion")
+				return
+			}
+
 			result, err := NestForXML(bucket)
 			if err != nil {
 				ForbiddenRequestTokenInvalid(w, r)
@@ -211,6 +225,12 @@ func respondWithXML(w http.ResponseWriter, r *http.Request, result interface{}) 
 func handlePut(w http.ResponseWriter, r *http.Request, bucketName string) {
 	for _, bucket := range AllBuckets {
 		if bucket.Name == bucketName {
+			if bucket.Status == "marked for deletion" {
+				bucket.Status = "active"
+
+				OkRequest(w, r)
+				return
+			}
 			ConflictRequest(w, r, "Bucket name already exists")
 			return
 		}
@@ -244,6 +264,10 @@ func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectN
 		}
 
 		if bucket.Name == bucketName {
+			if bucket.Status != "active" {
+				bucket.Status = "active"
+			}
+
 			if bucket.PathToBucket == "" {
 				InternalServerError(w, r)
 				return
@@ -288,7 +312,23 @@ func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectN
 			}
 
 			if _, exists := existingPaths["/"+objectName+extension]; !exists {
-				bucket.Data = append(bucket.Data, &File{Name: objectName, Path: "/" + objectName + extension, SizeInBytes: fi.Size()})
+				bucket.Data = append(bucket.Data,
+					&File{
+						Name:         objectName,
+						Path:         "/" + objectName + extension,
+						SizeInBytes:  fi.Size(),
+						CreateDate:   time.Now(),
+						LastModified: time.Now(),
+					})
+			} else {
+				for _, r := range bucket.Data {
+					if r == nil {
+						continue
+					}
+					if r.Name == objectName {
+						r.LastModified = time.Now()
+					}
+				}
 			}
 
 			bucket.LastModified = time.Now()
@@ -317,6 +357,11 @@ func handleGetObjects(w http.ResponseWriter, r *http.Request, bucketName, object
 
 			if len(bucket.Data) == 0 {
 				continue
+			}
+
+			if bucket.Status == "marked for deletion" {
+				BadRequest(w, r, "This bucket is marked for deletion")
+				return
 			}
 
 			for _, path := range bucket.Data {
