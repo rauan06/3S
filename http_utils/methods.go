@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"syscall"
 	"time"
 
 	. "triples/bucket_struct"
@@ -112,7 +113,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 	case 1:
 		for i, bucket := range AllBuckets {
 			if bucket.Name == bucketName {
-				if bucket.Data != nil {
+				if bucket.Data != nil || len(bucket.Data) != 0 {
 					ConflictRequest(w, r, "Non-empty bucket")
 					return
 				}
@@ -122,7 +123,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 				}
 				AllBuckets = append(AllBuckets[:i], AllBuckets[i+1:]...)
 
-				if err := os.RemoveAll(bucket.PathToBucket); err != nil {
+				if err := syscall.Unlink(bucket.PathToBucket); err != nil {
 					InternalServerError(w, r)
 					return
 				}
@@ -131,7 +132,6 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 					InternalServerError(w, r)
 					return
 				}
-
 				NoContentRequest(w, r)
 				return
 			}
@@ -145,9 +145,12 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 				}
 
 				for i, file := range bucket.Data {
+					if file == nil {
+						continue
+					}
 					if file.Name == objectName {
 						fmt.Println(bucket.PathToBucket + file.Path)
-						if err := os.Remove(bucket.PathToBucket + file.Path); err != nil {
+						if err := syscall.Unlink(bucket.PathToBucket + file.Path); err != nil {
 							BadRequest(w, r, "File is not found or corrupted")
 							return
 						}
@@ -211,7 +214,7 @@ func handlePut(w http.ResponseWriter, r *http.Request, bucketName string) {
 	newBucket := NewBucket(bucketName, SessionUser.Username, nil, PathToDir)
 	AllBuckets = append(AllBuckets, newBucket)
 
-	if err := os.Mkdir(PathToDir+"/"+bucketName, 0o700); err != nil {
+	if err := syscall.Mkdir(PathToDir+"/"+bucketName, Mode); err != nil {
 		ConflictRequest(w, r, "Bucket name already exists")
 		return
 	}
@@ -226,6 +229,10 @@ func handlePut(w http.ResponseWriter, r *http.Request, bucketName string) {
 
 func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectName string) {
 	for _, bucket := range AllBuckets {
+		if bucket == nil {
+			continue // Skip nil buckets
+		}
+
 		if bucket.Name == bucketName {
 			if bucket.PathToBucket == "" {
 				InternalServerError(w, r)
@@ -259,7 +266,9 @@ func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectN
 
 			existingPaths := make(map[string]struct{})
 			for _, data := range bucket.Data {
-				existingPaths[data.Path] = struct{}{}
+				if data != nil {
+					existingPaths[data.Path] = struct{}{}
+				}
 			}
 
 			if _, exists := existingPaths["/"+objectName+extension]; !exists {

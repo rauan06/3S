@@ -18,6 +18,7 @@ var (
 	SessionUser          *User
 	PathToDir            string
 	StorageDir           string
+	Mode                 = uint32(0o755)
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {

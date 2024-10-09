@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"syscall"
+
 	"triples/bucket_struct"
 	"triples/utils"
 
@@ -21,11 +23,11 @@ func main() {
 	flag.Parse()
 
 	StorageDir = "storage/"
-	os.Mkdir(StorageDir, 0o700)
+	syscall.Mkdir(StorageDir, 0o700)
 
 	PathToDir = StorageDir + *dir
 	if _, err := os.Stat(PathToDir); os.IsNotExist(err) {
-		os.Mkdir(PathToDir, 0o700)
+		syscall.Mkdir(PathToDir, Mode)
 	}
 
 	LoadBuckets()
