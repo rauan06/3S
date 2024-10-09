@@ -81,35 +81,7 @@ func GET(w http.ResponseWriter, r *http.Request) {
 	case 1:
 		handleBucketRequest(w, r, bucketName)
 	case 2:
-		for _, bucket := range AllBuckets {
-			if bucket.Name == bucketName {
-				for _, path := range bucket.Data {
-					if path.Path == "/"+objectName {
-						file, err := os.Open(bucket.PathToBucket + path.Path)
-						if err != nil {
-							http.Error(w, "File not found", http.StatusNotFound)
-							return
-						}
-						defer file.Close()
-						fileInfo, err := file.Stat()
-						if err != nil {
-							http.Error(w, "Could not retrieve file info", http.StatusInternalServerError)
-							return
-						}
-
-						// Serve the content with proper handling of range requests and caching
-						http.ServeContent(w, r, fileInfo.Name(), fileInfo.ModTime(), file)
-						return
-					}
-				}
-
-				NotFoundRequest(w, r)
-				return
-			}
-		}
-
-		NotFoundRequest(w, r)
-		return
+		handleGetObjects(w, r, bucketName, objectName)
 	}
 }
 
@@ -261,4 +233,36 @@ func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectN
 		}
 	}
 	NotFoundRequest(w, r)
+}
+
+func handleGetObjects(w http.ResponseWriter, r *http.Request, bucketName, objectName string) {
+	for _, bucket := range AllBuckets {
+		if bucket.Name == bucketName {
+			for _, path := range bucket.Data {
+				if path.Path == "/"+objectName {
+					file, err := os.Open(bucket.PathToBucket + path.Path)
+					if err != nil {
+						http.Error(w, "File not found", http.StatusNotFound)
+						return
+					}
+					defer file.Close()
+					fileInfo, err := file.Stat()
+					if err != nil {
+						http.Error(w, "Could not retrieve file info", http.StatusInternalServerError)
+						return
+					}
+
+					// Serve the content with proper handling of range requests and caching
+					http.ServeContent(w, r, fileInfo.Name(), fileInfo.ModTime(), file)
+					return
+				}
+			}
+
+			NotFoundRequest(w, r)
+			return
+		}
+	}
+
+	NotFoundRequest(w, r)
+	return
 }
