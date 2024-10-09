@@ -301,6 +301,10 @@ func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectN
 
 func handleGetObjects(w http.ResponseWriter, r *http.Request, bucketName, objectName string) {
 	for _, bucket := range AllBuckets {
+		if bucket == nil {
+			continue
+		}
+
 		if bucket.Name == bucketName {
 			if bucket.Data == nil {
 				continue
