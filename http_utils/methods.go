@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	. "triples/bucket_struct"
 )
@@ -223,6 +224,8 @@ func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectN
 			if _, exists := existingPaths["/"+objectName+extension]; !exists {
 				bucket.Data = append(bucket.Data, &File{Path: "/" + objectName + extension})
 			}
+
+			bucket.LastModified = time.Now()
 
 			if err := SaveBucketsToXMLFile(); err != nil {
 				fmt.Println("Error saving buckets:", err)
