@@ -144,7 +144,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 
-					OkRequest(w, r)
+					OkRequestWithResponse(w, r, "Buckets status has changed to marked for deletion")
 					return
 				}
 			}
@@ -228,7 +228,7 @@ func handlePut(w http.ResponseWriter, r *http.Request, bucketName string) {
 			if bucket.Status == "marked for deletion" {
 				bucket.Status = "active"
 
-				OkRequest(w, r)
+				OkRequestWithResponse(w, r, "Buckets status has changed to active")
 				return
 			}
 			ConflictRequest(w, r, "Bucket name already exists")

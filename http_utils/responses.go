@@ -68,6 +68,12 @@ func OkRequest(w http.ResponseWriter, r *http.Request) {
 	writeHeaderResponse("200 OK", r)
 }
 
+func OkRequestWithResponse(w http.ResponseWriter, r *http.Request, msg string) {
+	w.WriteHeader(http.StatusOK)
+	writeXML(w, msg, http.StatusOK)
+	writeHeaderResponse("200 OK", r)
+}
+
 func OkRequestWithHeaders(w http.ResponseWriter, r *http.Request) {
 	if len(AllBuckets) != 0 {
 		w.Header().Add("Location", r.URL.Path)
