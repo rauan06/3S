@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
+
 	"triples/http_utils"
 )
 
@@ -121,10 +121,10 @@ func TestGET_withSession(t *testing.T) {
 			requestURL: "/:/:/:/:/",
 			expectedBody: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<Response>\n" +
-				"  <Code>403</Code>\n" +
-				"  <Message>You dont have enough rights to access this bucket or object</Message>\n" +
+				"  <Code>400</Code>\n" +
+				"  <Message>400 Bad request</Message>\n" +
 				"</Response>\n",
-			expectedCode: http.StatusOK,
+			expectedCode: http.StatusBadRequest,
 		},
 		{
 			name:       "Get request 4",
@@ -157,7 +157,7 @@ func TestGET_withSession(t *testing.T) {
 				t.Errorf("handler returned wrong status code: got %v want %v", status, tt.expectedCode)
 			}
 
-			if strings.HasPrefix(rr.Body.String(), tt.expectedBody) {
+			if rr.Body.String() == tt.expectedBody {
 				t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), tt.expectedBody)
 			}
 		})

@@ -40,5 +40,9 @@ func Login(token string) error {
 	AllUsers = append(AllUsers, tempUser)
 	SessionUser = tempUser
 
+	if err := SaveUsersToXMLFile(); err != nil {
+		return fmt.Errorf("Srrver error, cant save users")
+	}
+
 	return nil
 }

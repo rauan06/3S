@@ -90,6 +90,11 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 	pathParts := strings.SplitN(r.URL.Path[1:], "/", 2)
 	bucketName := pathParts[0]
 	token := r.URL.Query().Get("session_id")
+	var objectName string
+
+	if len(pathParts) > 1 {
+		objectName = pathParts[1]
+	}
 
 	if SessionUser == nil && token == "" {
 		ForbiddenRequest(w, r)
@@ -103,30 +108,62 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for i, bucket := range AllBuckets {
-		if bucket.Name == bucketName {
-			if len(bucket.Data) != 0 {
-				ConflictRequest(w, r, "Non-empty bucket")
-				return
-			}
-			if bucket.SessionID != SessionUser.Username {
-				ForbiddenRequestTokenInvalid(w, r)
-				return
-			}
-			AllBuckets = append(AllBuckets[:i], AllBuckets[i+1:]...)
+	switch len(pathParts) {
+	case 1:
+		for i, bucket := range AllBuckets {
+			if bucket.Name == bucketName {
+				if bucket.Data != nil {
+					ConflictRequest(w, r, "Non-empty bucket")
+					return
+				}
+				if bucket.SessionID != SessionUser.Username {
+					ForbiddenRequestTokenInvalid(w, r)
+					return
+				}
+				AllBuckets = append(AllBuckets[:i], AllBuckets[i+1:]...)
 
-			if err := os.RemoveAll(bucket.PathToBucket); err != nil {
-				InternalServerError(w, r)
+				if err := os.RemoveAll(bucket.PathToBucket); err != nil {
+					InternalServerError(w, r)
+					return
+				}
+
+				if err := SaveBucketsToXMLFile(); err != nil {
+					InternalServerError(w, r)
+					return
+				}
+
+				NoContentRequest(w, r)
 				return
 			}
+		}
+	case 2:
+		for _, bucket := range AllBuckets {
+			if bucket.Name == bucketName {
+				if bucket.Data == nil {
+					NotFoundRequest(w, r)
+					return
+				}
 
-			if err := SaveBucketsToXMLFile(); err != nil {
-				InternalServerError(w, r)
-				return
+				for i, file := range bucket.Data {
+					if file.Name == objectName {
+						fmt.Println(bucket.PathToBucket + file.Path)
+						if err := os.Remove(bucket.PathToBucket + file.Path); err != nil {
+							BadRequest(w, r, "File is not found or corrupted")
+							return
+						}
+
+						bucket.Data = append(bucket.Data[:i], bucket.Data[i+1:]...)
+
+						if err := SaveBucketsToXMLFile(); err != nil {
+							InternalServerError(w, r)
+							return
+						}
+
+						NoContentRequest(w, r)
+						return
+					}
+				}
 			}
-
-			NoContentRequest(w, r)
-			return
 		}
 	}
 
@@ -171,7 +208,7 @@ func handlePut(w http.ResponseWriter, r *http.Request, bucketName string) {
 		}
 	}
 
-	newBucket := NewBucket(bucketName, SessionUser.Username, &File{}, PathToDir)
+	newBucket := NewBucket(bucketName, SessionUser.Username, nil, PathToDir)
 	AllBuckets = append(AllBuckets, newBucket)
 
 	if err := os.Mkdir(PathToDir+"/"+bucketName, 0o700); err != nil {
@@ -216,13 +253,17 @@ func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectN
 				return
 			}
 
+			if bucket.Data == nil {
+				bucket.Data = []*File{}
+			}
+
 			existingPaths := make(map[string]struct{})
 			for _, data := range bucket.Data {
 				existingPaths[data.Path] = struct{}{}
 			}
 
 			if _, exists := existingPaths["/"+objectName+extension]; !exists {
-				bucket.Data = append(bucket.Data, &File{Path: "/" + objectName + extension})
+				bucket.Data = append(bucket.Data, &File{Name: objectName, Path: "/" + objectName + extension})
 			}
 
 			bucket.LastModified = time.Now()
@@ -242,7 +283,7 @@ func handleGetObjects(w http.ResponseWriter, r *http.Request, bucketName, object
 	for _, bucket := range AllBuckets {
 		if bucket.Name == bucketName {
 			for _, path := range bucket.Data {
-				if path.Path == "/"+objectName {
+				if path.Name == objectName {
 					file, err := os.Open(bucket.PathToBucket + path.Path)
 					if err != nil {
 						http.Error(w, "File not found", http.StatusNotFound)
