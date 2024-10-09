@@ -113,17 +113,18 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 	case 1:
 		for i, bucket := range AllBuckets {
 			if bucket.Name == bucketName {
-				if bucket.Data != nil || len(bucket.Data) != 0 {
+				if bucket.Data != nil && len(bucket.Data) != 0 && bucket.Data[0] != nil {
 					ConflictRequest(w, r, "Non-empty bucket")
 					return
 				}
+
 				if bucket.SessionID != SessionUser.Username {
 					ForbiddenRequestTokenInvalid(w, r)
 					return
 				}
 				AllBuckets = append(AllBuckets[:i], AllBuckets[i+1:]...)
 
-				if err := syscall.Unlink(bucket.PathToBucket); err != nil {
+				if err := os.RemoveAll(bucket.PathToBucket); err != nil {
 					InternalServerError(w, r)
 					return
 				}
@@ -137,7 +138,7 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	case 2:
-		for _, bucket := range AllBuckets {
+		for j, bucket := range AllBuckets {
 			if bucket.Name == bucketName {
 				if bucket.Data == nil {
 					NotFoundRequest(w, r)
@@ -149,18 +150,22 @@ func DELETE(w http.ResponseWriter, r *http.Request) {
 						continue
 					}
 					if file.Name == objectName {
-						fmt.Println(bucket.PathToBucket + file.Path)
-						if err := syscall.Unlink(bucket.PathToBucket + file.Path); err != nil {
+						if err := os.RemoveAll(bucket.PathToBucket + file.Path); err != nil {
 							BadRequest(w, r, "File is not found or corrupted")
 							return
 						}
 
 						bucket.Data = append(bucket.Data[:i], bucket.Data[i+1:]...)
 
+						if bucket.Data == nil || (len(bucket.Data) == 1 && bucket.Data[0] == nil) {
+							bucket.Data = nil
+						}
 						if err := SaveBucketsToXMLFile(); err != nil {
 							InternalServerError(w, r)
 							return
 						}
+
+						AllBuckets[j] = bucket
 
 						NoContentRequest(w, r)
 						return
@@ -315,6 +320,9 @@ func handleGetObjects(w http.ResponseWriter, r *http.Request, bucketName, object
 			}
 
 			for _, path := range bucket.Data {
+				if bucket.Data == nil {
+					continue
+				}
 				if path.Name == objectName {
 					filePath := bucket.PathToBucket + path.Path
 
