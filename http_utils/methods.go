@@ -228,6 +228,11 @@ func handlePut(w http.ResponseWriter, r *http.Request, bucketName string) {
 			if bucket.Status == "marked for deletion" {
 				bucket.Status = "active"
 
+				if err := SaveBucketsToXMLFile(); err != nil {
+					InternalServerError(w, r)
+					return
+				}
+
 				OkRequestWithResponse(w, r, "Buckets status has changed to active")
 				return
 			}
@@ -266,6 +271,11 @@ func handlePutObject(w http.ResponseWriter, r *http.Request, bucketName, objectN
 		if bucket.Name == bucketName {
 			if bucket.Status != "active" {
 				bucket.Status = "active"
+
+				if err := SaveBucketsToXMLFile(); err != nil {
+					InternalServerError(w, r)
+					return
+				}
 			}
 
 			if bucket.PathToBucket == "" {
